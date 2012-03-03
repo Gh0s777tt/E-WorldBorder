@@ -46,6 +46,9 @@ public class BorderCheckTask implements Runnable
 		if (border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound()))
 			return null;
 
+		if (player.hasPermission("worldborder.ignoreborder"))
+		    return null;
+
 		Location newLoc = newLocation(player, loc, border);
 
 		if (Config.whooshEffect())
@@ -65,7 +68,7 @@ public class BorderCheckTask implements Runnable
 			player.teleport(newLoc);
 		else
 		{
-			Vehicle ride = player.getVehicle();
+			Vehicle ride = (Vehicle) player.getVehicle();
 			if (ride != null)
 			{	// vehicles need to be offset vertically and have velocity stopped
 				double vertOffset = ride.getLocation().getY() - loc.getY();

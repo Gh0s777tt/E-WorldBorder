@@ -31,7 +31,7 @@ commands:
            /<command> debug <on/off> - turn debug mode on or off.
 permissions:
   worldborder.*:
-    description: Grants all WorldBorder permissions
+    description: Grants all WorldBorder permissions, except worldborder.ignoreborder
     children:
       worldborder.set: true
       worldborder.radius: true
@@ -96,4 +96,7 @@ permissions:
     default: op
   worldborder.whoosh:
     description: Can enable/disable "whoosh" knockback effect
+    default: op
+  worldborder.ignoreborder:
+    description: Can move outside border
     default: op
