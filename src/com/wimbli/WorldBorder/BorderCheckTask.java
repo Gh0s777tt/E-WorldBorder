@@ -46,37 +46,39 @@ public class BorderCheckTask implements Runnable
 		if (border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound()))
 			return null;
 
-		Location newLoc = newLocation(player, loc, border);
+		if(!player.hasPermission("worldborder.bypass") {
+			Location newLoc = newLocation(player, loc, border);
 
-		if (Config.whooshEffect())
-		{	// give some particle and sound effects where the player was beyond the border
-			world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
-			world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
-			world.playEffect(loc, Effect.SMOKE, 4);
-			world.playEffect(loc, Effect.SMOKE, 4);
-			world.playEffect(loc, Effect.SMOKE, 4);
-			world.playEffect(loc, Effect.GHAST_SHOOT, 0);
-		}
-
-		if (returnLocationOnly)
-			return newLoc;
-
-		if (!player.isInsideVehicle())
-			player.teleport(newLoc);
-		else
-		{
-			Entity ride = player.getVehicle();
-			if (ride != null)
-			{	// vehicles need to be offset vertically and have velocity stopped
-				double vertOffset = ride.getLocation().getY() - loc.getY();
-				newLoc.setY(newLoc.getY() + vertOffset);
-				ride.setVelocity(new Vector(0, 0, 0));
-				ride.teleport(newLoc);
+			if (Config.whooshEffect())
+			{	// give some particle and sound effects where the player was beyond the border
+				world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
+				world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
+				world.playEffect(loc, Effect.SMOKE, 4);
+				world.playEffect(loc, Effect.SMOKE, 4);
+				world.playEffect(loc, Effect.SMOKE, 4);
+				world.playEffect(loc, Effect.GHAST_SHOOT, 0);
 			}
-			else
-			{	// if player.getVehicle() returns null (when riding a pig on older Bukkit releases, for instance), player has to be ejected
-				player.leaveVehicle();
+
+			if (returnLocationOnly)
+				return newLoc;
+
+			if (!player.isInsideVehicle())
 				player.teleport(newLoc);
+			else
+			{
+				Entity ride = player.getVehicle();
+				if (ride != null)
+				{	// vehicles need to be offset vertically and have velocity stopped
+					double vertOffset = ride.getLocation().getY() - loc.getY();
+					newLoc.setY(newLoc.getY() + vertOffset);
+					ride.setVelocity(new Vector(0, 0, 0));
+					ride.teleport(newLoc);
+				}
+				else
+				{		// if player.getVehicle() returns null (when riding a pig on older Bukkit releases, for instance), player has to be ejected
+					player.leaveVehicle();
+					player.teleport(newLoc);
+				}
 			}
 		}
 
