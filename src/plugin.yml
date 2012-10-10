@@ -105,3 +105,6 @@ permissions:
   worldborder.dynmapmsg:
     description: Can set the label text for borders shown in DynMap
     default: op
+  worldborder.bypass:
+    description: Allows users to bypass the border
+    default: none
