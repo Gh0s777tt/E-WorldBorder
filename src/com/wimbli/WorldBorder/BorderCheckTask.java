@@ -75,7 +75,7 @@ public class BorderCheckTask implements Runnable
 		else
 		{
 			Entity ride = player.getVehicle();
-			if (ride != null)
+			if (ride != null && !(ride instanceof LivingEntity))
 			{	// vehicles need to be offset vertically and have velocity stopped
 				double vertOffset = (ride instanceof LivingEntity) ? 0 : ride.getLocation().getY() - loc.getY();
 				newLoc.setY(newLoc.getY() + vertOffset);
