@@ -16,6 +16,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.Effect;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -23,28 +26,28 @@ import org.bukkit.World;
 public class Config
 {
 	// private stuff used within this class
-	private static WorldBorder plugin;
-	private static FileConfiguration cfg = null;
-	private static final Logger mcLog = Logger.getLogger("Minecraft");
+	protected static JavaPlugin plugin;
+	protected static FileConfiguration cfg = null;
+	protected static final Logger mcLog = Logger.getLogger("Minecraft");
 	public static DecimalFormat coord = new DecimalFormat("0.0");
-	private static int borderTask = -1;
+	protected static int borderTask = -1;
 	public static WorldFillTask fillTask;
 	public static WorldTrimTask trimTask;
-	private static Set<String> bypassPlayers = Collections.synchronizedSet(new LinkedHashSet<String>());
-	private static Runtime rt = Runtime.getRuntime();
+	protected static Set<String> bypassPlayers = Collections.synchronizedSet(new LinkedHashSet<String>());
+	protected static Runtime rt = Runtime.getRuntime();
 
 	// actual configuration values which can be changed
-	private static boolean shapeRound = true;
-	private static Map<String, BorderData> borders = Collections.synchronizedMap(new LinkedHashMap<String, BorderData>());
-	private static String message;
-	private static boolean DEBUG = false;
-	private static double knockBack = 3.0;
-	private static int timerTicks = 4;
-	private static boolean whooshEffect = false;
-	private static boolean portalRedirection = true;
-	private static boolean dynmapEnable = true;
-	private static String dynmapMessage;
-	private static int remountDelayTicks = 0;
+	protected static boolean shapeRound = true;
+	protected static Map<String, BorderData> borders = Collections.synchronizedMap(new LinkedHashMap<String, BorderData>());
+	protected static String message;
+	protected static boolean DEBUG = false;
+	protected static double knockBack = 3.0;
+	protected static int timerTicks = 4;
+	protected static boolean whooshEffect = false;
+	protected static boolean portalRedirection = true;
+	protected static boolean dynmapEnable = true;
+	protected static String dynmapMessage;
+	protected static int remountDelayTicks = 0;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -140,7 +143,7 @@ public class Config
 	{
 		Set<String> output = new HashSet<String>();
 
-		Iterator world = borders.keySet().iterator();
+		Iterator<String> world = borders.keySet().iterator();
 		while(world.hasNext())
 		{
 			output.add( BorderDescription((String)world.next()) );
@@ -335,26 +338,30 @@ public class Config
 	public static boolean isBorderTimerRunning()
 	{
 		if (borderTask == -1) return false;
-		return (plugin.getServer().getScheduler().isQueued(borderTask) || plugin.getServer().getScheduler().isCurrentlyRunning(borderTask));
+		return (Bukkit.getServer().getScheduler().isQueued(borderTask) || Bukkit.getServer().getScheduler().isCurrentlyRunning(borderTask));
 	}
 
-	public static void StartBorderTimer()
+	public static void StartBorderTimer(Plugin plugin)
 	{
 		StopBorderTimer();
-
-		borderTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new BorderCheckTask(), timerTicks, timerTicks);
+		
+		borderTask = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new BorderCheckTask(), timerTicks, timerTicks);
 
 		if (borderTask == -1)
 			LogWarn("Failed to start timed border-checking task! This will prevent the plugin from working. Try restarting Bukkit.");
 
 		LogConfig("Border-checking timed task started.");
 	}
+	
+	public static void StartBorderTimer(){
+		StartBorderTimer(plugin);
+	}
 
 	public static void StopBorderTimer()
 	{
 		if (borderTask == -1) return;
 
-		plugin.getServer().getScheduler().cancelTask(borderTask);
+		Bukkit.getServer().getScheduler().cancelTask(borderTask);
 		borderTask = -1;
 		LogConfig("Border-checking timed task stopped.");
 	}
@@ -374,15 +381,20 @@ public class Config
 		save(false);
 	}
 
-	public static void RestoreFillTask(String world, int fillDistance, int chunksPerRun, int tickFrequency, int x, int z, int length, int total)
+	public static void RestoreFillTask(String world, int fillDistance, int chunksPerRun, int tickFrequency, int x, int z, int length, int total, Plugin plugin)
 	{
-		fillTask = new WorldFillTask(plugin.getServer(), null, world, fillDistance, chunksPerRun, tickFrequency);
+		fillTask = new WorldFillTask(Bukkit.getServer(), null, world, fillDistance, chunksPerRun, tickFrequency);
 		if (fillTask.valid())
 		{
 			fillTask.continueProgress(x, z, length, total);
-			int task = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, fillTask, 20, tickFrequency);
+			int task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, fillTask, 20, tickFrequency);
 			fillTask.setTaskID(task);
 		}
+	}
+	
+	public static void RestoreFillTask(String world, int fillDistance, int chunksPerRun, int tickFrequency, int x, int z, int length, int total)
+	{
+		RestoreFillTask(world, fillDistance, chunksPerRun, tickFrequency, x, z, length, total, plugin);
 	}
 
 
@@ -437,9 +449,9 @@ public class Config
 	}
 
 
-	private static final int currentCfgVersion = 7;
+	protected static final int currentCfgVersion = 7;
 
-	public static void load(WorldBorder master, boolean logIt)
+	public static void load(JavaPlugin master, boolean logIt)
 	{	// load config from file
 		plugin = master;
 
@@ -545,10 +557,10 @@ public class Config
 		cfg.set("dynmap-border-message", dynmapMessage);
 
 		cfg.set("worlds", null);
-		Iterator world = borders.entrySet().iterator();
+		Iterator<Entry<String, BorderData>> world = borders.entrySet().iterator();
 		while(world.hasNext())
 		{
-			Entry wdata = (Entry)world.next();
+			Entry<String, BorderData> wdata = (Entry<String, BorderData>)world.next();
 			String name = ((String)wdata.getKey()).replace(".", "<");
 			BorderData bord = (BorderData)wdata.getValue();
 
