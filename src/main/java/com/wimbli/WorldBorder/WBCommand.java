@@ -625,6 +625,12 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage("You must specify a world! Example: " + cmdW + " fill " + clrOpt + "[freq] [pad] [force]");
 				return true;
 			}
+			
+			if (!cancel && !confirm && !pause && frequency.equalsIgnoreCase("0") && frequency.startsWith("-"))
+			{
+				sender.sendMessage("Frequency must be < 0!");
+				return true;
+			}
 
 			cmdFill(sender, player, world, confirm, cancel, pause, pad, frequency, forceLoad);
 		}
