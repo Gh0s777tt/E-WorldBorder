@@ -1,16 +1,17 @@
 package com.wimbli.WorldBorder;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.*;
-import org.bukkit.entity.Player;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 public class WBCommand implements CommandExecutor
@@ -302,10 +303,8 @@ public class WBCommand implements CommandExecutor
 				return true;
 			}
 
-			Iterator listItem = list.iterator();
-			while(listItem.hasNext())
-			{
-				sender.sendMessage( (String)listItem.next() );
+			for(String aList : list) {
+				sender.sendMessage(aList);
 			}
 		}
 
@@ -369,7 +368,7 @@ public class WBCommand implements CommandExecutor
 			if (!Config.HasPermission(player, "reload")) return true;
 
 			if (player != null)
-				Config.Log("Reloading config file at the command of player \"" + player.getName() + "\".");
+				Config.log("Reloading config file at the command of player \"" + player.getName() + "\".");
 
 			Config.load(plugin, true);
 
@@ -385,7 +384,7 @@ public class WBCommand implements CommandExecutor
 			Config.setDebug(strAsBool(split[1]));
 
 			if (player != null)
-				Config.Log((Config.Debug() ? "Enabling" : "Disabling") + " debug output at the command of player \"" + player.getName() + "\".");
+				Config.log((Config.Debug() ? "Enabling" : "Disabling") + " debug output at the command of player \"" + player.getName() + "\".");
 
 			if (player != null)
 				sender.sendMessage("Debug mode " + enabledColored(Config.Debug()) + ".");
@@ -400,7 +399,7 @@ public class WBCommand implements CommandExecutor
 
 			if (player != null)
 			{
-				Config.Log((Config.whooshEffect() ? "Enabling" : "Disabling") + " \"whoosh\" knockback effect at the command of player \"" + player.getName() + "\".");
+				Config.log((Config.whooshEffect() ? "Enabling" : "Disabling") + " \"whoosh\" knockback effect at the command of player \"" + player.getName() + "\".");
 				sender.sendMessage("\"Whoosh\" knockback effect " + enabledColored(Config.whooshEffect()) + ".");
 			}
 		}
@@ -483,7 +482,7 @@ public class WBCommand implements CommandExecutor
 			Config.setBorder(world, border);
 
 			if (player != null)
-				sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : Config.ShapeName(shape.booleanValue())) + "\".");
+				sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : Config.ShapeName(shape)) + "\".");
 		}
 
 		// "wshape" command from player, using current world
@@ -508,7 +507,7 @@ public class WBCommand implements CommandExecutor
 			border.setShape(shape);
 			Config.setBorder(world, border);
 
-			sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : Config.ShapeName(shape.booleanValue())) + "\".");
+			sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : Config.ShapeName(shape)) + "\".");
 		}
 
 		// "wrap" command from player or console, world specified
@@ -561,7 +560,7 @@ public class WBCommand implements CommandExecutor
 
 			if (player != null)
 			{
-				Config.Log((Config.portalRedirection() ? "Enabling" : "Disabling") + " portal redirection at the command of player \"" + player.getName() + "\".");
+				Config.log((Config.portalRedirection() ? "Enabling" : "Disabling") + " portal redirection at the command of player \"" + player.getName() + "\".");
 				sender.sendMessage("Portal redirection " + enabledColored(Config.portalRedirection()) + ".");
 			}
 		}
@@ -752,7 +751,7 @@ public class WBCommand implements CommandExecutor
 			sender.sendMessage("DynMap border display " + (Config.DynmapBorderEnabled() ? "enabled" : "disabled") + ".");
 
 			if (player != null)
-				Config.Log((Config.DynmapBorderEnabled() ? "Enabled" : "Disabled") + " DynMap border display at the command of player \"" + player.getName() + "\".");
+				Config.log((Config.DynmapBorderEnabled() ? "Enabled" : "Disabled") + " DynMap border display at the command of player \"" + player.getName() + "\".");
 		}
 
 		// "dynmapmsg" command from player or console
@@ -794,7 +793,7 @@ public class WBCommand implements CommandExecutor
 			if (target != null && target.isOnline())
 				target.sendMessage("Border bypass is now " + enabledColored(bypassing) + ".");
 
-			Config.Log("Border bypass for player \"" + sPlayer + "\" is " + (bypassing ? "enabled" : "disabled") + (player != null ? " at the command of player \"" + player.getName() + "\"" : "") + ".");
+			Config.log("Border bypass for player \"" + sPlayer + "\" is " + (bypassing ? "enabled" : "disabled") + (player != null ? " at the command of player \"" + player.getName() + "\"" : "") + ".");
 			if (player != null && player != target)
 				sender.sendMessage("Border bypass for player \"" + sPlayer + "\" is " + enabledColored(bypassing) + ".");
 		}
@@ -809,7 +808,7 @@ public class WBCommand implements CommandExecutor
 			boolean bypassing = !Config.isPlayerBypassing(sPlayer);
 			Config.setPlayerBypass(sPlayer, bypassing);
 
-			Config.Log("Border bypass is " + (bypassing ? "enabled" : "disabled") + " for player \"" + sPlayer + "\".");
+			Config.log("Border bypass is " + (bypassing ? "enabled" : "disabled") + " for player \"" + sPlayer + "\".");
 			sender.sendMessage("Border bypass is now " + enabledColored(bypassing) + ".");
 		}
 
@@ -833,7 +832,7 @@ public class WBCommand implements CommandExecutor
 				{
 					page = Integer.parseInt(split[0]);
 				}
-				catch(NumberFormatException ex)
+				catch(NumberFormatException ignored)
 				{
 				}
 				if (page > 4)
@@ -903,11 +902,7 @@ public class WBCommand implements CommandExecutor
 	private boolean strAsBool(String str)
 	{
 		str = str.toLowerCase();
-		if (str.startsWith("y") || str.startsWith("t") || str.startsWith("on") || str.startsWith("+") || str.startsWith("1"))
-		{
-			return true;
-		}
-		return false;
+		return str.startsWith("y") || str.startsWith("t") || str.startsWith("on") || str.startsWith("+") || str.startsWith("1");
 	}
 
 	private String enabledColored(boolean enabled)
@@ -1055,7 +1050,7 @@ public class WBCommand implements CommandExecutor
 			}
 
 			if (player != null)
-				Config.Log("Filling out world to border at the command of player \"" + player.getName() + "\".");
+				Config.log("Filling out world to border at the command of player \"" + player.getName() + "\".");
 
 			int ticks = 1, repeats = 1;
 			if (fillFrequency > 20)
@@ -1166,7 +1161,7 @@ public class WBCommand implements CommandExecutor
 			}
 
 			if (player != null)
-				Config.Log("Trimming world beyond border at the command of player \"" + player.getName() + "\".");
+				Config.log("Trimming world beyond border at the command of player \"" + player.getName() + "\".");
 
 			int ticks = 1, repeats = 1;
 			if (trimFrequency > 20)

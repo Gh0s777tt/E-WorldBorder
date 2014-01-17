@@ -1,19 +1,14 @@
 package com.wimbli.WorldBorder;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.*;
+import org.bukkit.util.Vector;
+
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
-import org.bukkit.World;
 
 
 public class BorderCheckTask implements Runnable
@@ -78,7 +73,7 @@ public class BorderCheckTask implements Runnable
 				Location rideLoc = newLoc.clone();
 				rideLoc.setY(newLoc.getY() + vertOffset);
 				if (Config.Debug())
-					Config.LogWarn("Player was riding a \"" + ride.toString() + "\".");
+					Config.logWarn("Player was riding a \"" + ride.toString() + "\".");
 				if (ride instanceof Boat)
 				{	// boats currently glitch on client when teleported, so crappy workaround is to remove it and spawn a new one
 					ride.remove();
@@ -121,8 +116,8 @@ public class BorderCheckTask implements Runnable
 	{
 		if (Config.Debug())
 		{
-			Config.LogWarn((notify ? "Border crossing" : "Check was run") + " in \"" + loc.getWorld().getName() + "\". Border " + border.toString());
-			Config.LogWarn("Player position X: " + Config.coord.format(loc.getX()) + " Y: " + Config.coord.format(loc.getY()) + " Z: " + Config.coord.format(loc.getZ()));
+			Config.logWarn((notify ? "Border crossing" : "Check was run") + " in \"" + loc.getWorld().getName() + "\". Border " + border.toString());
+			Config.logWarn("Player position X: " + Config.coord.format(loc.getX()) + " Y: " + Config.coord.format(loc.getY()) + " Z: " + Config.coord.format(loc.getZ()));
 		}
 
 		Location newLoc = border.correctedPosition(loc, Config.ShapeRound(), player.isFlying());
@@ -131,7 +126,7 @@ public class BorderCheckTask implements Runnable
 		if (newLoc == null)
 		{
 			if (Config.Debug())
-				Config.LogWarn("Target new location unviable, using spawn or killing player.");
+				Config.logWarn("Target new location unviable, using spawn or killing player.");
 			if (Config.getIfPlayerKill())
 			{
 				player.setHealth(0.0D);
@@ -141,7 +136,7 @@ public class BorderCheckTask implements Runnable
 		}
 
 		if (Config.Debug())
-			Config.LogWarn("New position in world \"" + newLoc.getWorld().getName() + "\" at X: " + Config.coord.format(newLoc.getX()) + " Y: " + Config.coord.format(newLoc.getY()) + " Z: " + Config.coord.format(newLoc.getZ()));
+			Config.logWarn("New position in world \"" + newLoc.getWorld().getName() + "\" at X: " + Config.coord.format(newLoc.getX()) + " Y: " + Config.coord.format(newLoc.getY()) + " Z: " + Config.coord.format(newLoc.getZ()));
 
 		if (notify)
 			player.sendMessage(Config.Message());

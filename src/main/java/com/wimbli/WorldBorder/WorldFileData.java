@@ -1,19 +1,16 @@
 package com.wimbli.WorldBorder;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.bukkit.entity.Player;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.*;
+import java.util.List;
 
 // image output stuff, for debugging method at bottom of this file
-import java.awt.*;
-import java.awt.image.*;
-import javax.imageio.*;
 
 
 // by the way, this region file handler was created based on the divulged region file format: http://mojang.com/2011/02/16/minecraft-save-file-format-in-beta-1-3/
@@ -36,11 +33,9 @@ public class WorldFileData
 		{
 			// check for region folder inside a DIM* folder (DIM-1 for nether, DIM1 for end, DIMwhatever for custom world types)
 			File[] possibleDimFolders = newData.world.getWorldFolder().listFiles(new DimFolderFileFilter());
-			for (int i = 0; i < possibleDimFolders.length; i++)
-			{
-				File possible = new File(newData.world.getWorldFolder(), possibleDimFolders[i].getName()+File.separator+"region");
-				if (possible.exists() && possible.isDirectory())
-				{
+			for(File possibleDimFolder : possibleDimFolders) {
+				File possible = new File(newData.world.getWorldFolder(), possibleDimFolder.getName() + File.separator + "region");
+				if(possible.exists() && possible.isDirectory()) {
 					newData.regionFolder = possible;
 					break;
 				}
@@ -127,7 +122,7 @@ public class WorldFileData
 		CoordXZ region = new CoordXZ(CoordXZ.chunkToRegion(x), CoordXZ.chunkToRegion(z));
 		List<Boolean> regionChunks = this.getRegionData(region);
 //		Bukkit.getLogger().info("x: "+x+"  z: "+z+"  offset: "+coordToRegionOffset(x, z));
-		return regionChunks.get(coordToRegionOffset(x, z)).booleanValue();
+		return regionChunks.get(coordToRegionOffset(x, z));
 	}
 
 	// Find out if the chunk at the given coordinates has been fully generated.
@@ -219,7 +214,7 @@ public class WorldFileData
 	// send a message to the server console/log and possibly to an in-game player
 	private void sendMessage(String text)
 	{
-		Config.Log("[WorldData] " + text);
+		Config.log("[WorldData] " + text);
 		if (notifyPlayer != null && notifyPlayer.isOnline())
 			notifyPlayer.sendMessage("[WorldData] " + text);
 	}
@@ -272,19 +267,19 @@ public class WorldFileData
 		{
 			for (int z = 0; z < 32; z++)
 			{
-				if (data.get(current).booleanValue())
+				if (data.get(current))
 					g2.fillRect(x,z, x+1, z+1);
 				current++;
 			}
 		}
 
 		File f = new File("region_"+region.x+"_"+region.z+"_.png");
-		Config.Log(f.getAbsolutePath());
+		Config.log(f.getAbsolutePath());
 		try {
 			// png is an image format (like gif or jpg)
 			ImageIO.write(bi, "png", f);
 		} catch (IOException ex) {
-			Config.Log("[SEVERE]"+ex.getLocalizedMessage());
+			Config.log("[SEVERE]" + ex.getLocalizedMessage());
 		}
 	}
 }
