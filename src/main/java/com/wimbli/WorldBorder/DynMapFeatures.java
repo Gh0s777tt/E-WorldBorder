@@ -1,20 +1,18 @@
 package com.wimbli.WorldBorder;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.World;
-
+import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
 import org.dynmap.markers.AreaMarker;
 import org.dynmap.markers.CircleMarker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 
 public class DynMapFeatures
@@ -22,9 +20,6 @@ public class DynMapFeatures
 	private static DynmapAPI api;
 	private static MarkerAPI markApi;
 	private static MarkerSet markSet;
-	private static int lineWeight = 3;
-	private static double lineOpacity = 1.0;
-	private static int lineColor = 0xFF0000;
 
 	// Whether re-rendering functionality is available
 	public static boolean renderEnabled()
@@ -56,12 +51,12 @@ public class DynMapFeatures
 		}
 		catch (ClassNotFoundException ex)
 		{
-			Config.LogConfig("DynMap is available, but border display is currently disabled: you need DynMap v0.36 or newer.");
+			Config.logConfig("DynMap is available, but border display is currently disabled: you need DynMap v0.36 or newer.");
 			return;
 		}
 		catch (NullPointerException ex)
 		{
-			Config.LogConfig("DynMap is present, but an NPE (type 1) was encountered while trying to integrate. Border display disabled.");
+			Config.logConfig("DynMap is present, but an NPE (type 1) was encountered while trying to integrate. Border display disabled.");
 			return;
 		}
 
@@ -72,14 +67,14 @@ public class DynMapFeatures
 		}
 		catch (NullPointerException ex)
 		{
-			Config.LogConfig("DynMap is present, but an NPE (type 2) was encountered while trying to integrate. Border display disabled.");
+			Config.logConfig("DynMap is present, but an NPE (type 2) was encountered while trying to integrate. Border display disabled.");
 			return;
 		}
 
 		// go ahead and show borders for all worlds
 		showAllBorders();
 
-		Config.LogConfig("Successfully hooked into DynMap for the ability to display borders.");
+		Config.logConfig("Successfully hooked into DynMap for the ability to display borders.");
 	}
 
 
@@ -153,12 +148,10 @@ public class DynMapFeatures
 			markSet.setMarkerSetLabel("WorldBorder");
 
 		Map<String, BorderData> borders = Config.getBorders();
-		Iterator worlds = borders.entrySet().iterator();
-		while(worlds.hasNext())
-		{
-			Entry wdata = (Entry)worlds.next();
-			String worldName = ((String)wdata.getKey());
-			BorderData border = (BorderData)wdata.getValue();
+		for(Entry<String, BorderData> stringBorderDataEntry : borders.entrySet()) {
+			Entry wdata = (Entry) stringBorderDataEntry;
+			String worldName = ((String) wdata.getKey());
+			BorderData border = (BorderData) wdata.getValue();
 			showBorder(worldName, border);
 		}
 	}
@@ -184,6 +177,9 @@ public class DynMapFeatures
 		if (marker == null)
 		{
 			marker = markSet.createCircleMarker("worldborder_"+worldName, Config.DynmapMessage(), false, worldName, border.getX(), 64.0, border.getZ(), border.getRadiusX(), border.getRadiusZ(), true);
+			int lineWeight = 3;
+			double lineOpacity = 1.0;
+			int lineColor = 0xFF0000;
 			marker.setLineStyle(lineWeight, lineOpacity, lineColor);
 			marker.setFillStyle(0.0, 0x000000);
 			roundBorders.put(worldName, marker);

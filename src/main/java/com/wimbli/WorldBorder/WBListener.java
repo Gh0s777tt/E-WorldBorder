@@ -1,13 +1,12 @@
 package com.wimbli.WorldBorder;
 
-import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.Location;
 
 
 public class WBListener implements Listener
@@ -20,7 +19,7 @@ public class WBListener implements Listener
 			return;
 
 		if (Config.Debug())
-			Config.Log("Teleport cause: "+event.getCause().toString());
+			Config.log("Teleport cause: " + event.getCause().toString());
 
 		if(event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL && Config.getDenyEnderpearl())
 		{
@@ -59,13 +58,13 @@ public class WBListener implements Listener
 		{
 			Chunk chunk = event.getChunk();
 			chunk.unload(false, false);
-			Config.LogWarn("New chunk generation has been prevented at X " + chunk.getX() + ", Z " + chunk.getZ());
+			Config.logWarn("New chunk generation has been prevented at X " + chunk.getX() + ", Z " + chunk.getZ());
 		}
 */
 		// make sure our border monitoring task is still running like it should
 		if (Config.isBorderTimerRunning()) return;
 
-		Config.LogWarn("Border-checking task was not running! Something on your server apparently killed it. It will now be restarted.");
+		Config.logWarn("Border-checking task was not running! Something on your server apparently killed it. It will now be restarted.");
 		Config.StartBorderTimer();
 	}
 }

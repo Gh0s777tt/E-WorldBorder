@@ -1,11 +1,11 @@
 package com.wimbli.WorldBorder;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 
 public class BorderData
@@ -168,7 +168,7 @@ public class BorderData
 	{
 		// if this border has a shape override set, use it
 		if (shapeRound != null)
-			round = shapeRound.booleanValue();
+			round = shapeRound;
 
 		// square border
 		if (!round)
@@ -181,14 +181,7 @@ public class BorderData
 			double X = Math.abs(x - xLoc);
 			double Z = Math.abs(z - zLoc);
 
-			if (X < DefiniteRectangleX && Z < DefiniteRectangleZ)
-				return true;	// Definitely inside
-			else if (X >= radiusX || Z >= radiusZ)
-				return false;	// Definitely outside
-			else if (X * X + Z * Z * radiusSquaredQuotient < radiusXSquared)
-				return true;	// After further calculation, inside
-			else
-				return false;	// Apparently outside, then
+			return X < DefiniteRectangleX && Z < DefiniteRectangleZ || !(X >= radiusX || Z >= radiusZ) && X * X + Z * Z * radiusSquaredQuotient < radiusXSquared;
 		}
 	}
 	public boolean insideBorder(double xLoc, double zLoc)
@@ -212,7 +205,7 @@ public class BorderData
 	{
 		// if this border has a shape override set, use it
 		if (shapeRound != null)
-			round = shapeRound.booleanValue();
+			round = shapeRound;
 
 		double xLoc = loc.getX();
 		double zLoc = loc.getZ();
@@ -309,9 +302,7 @@ public class BorderData
 			return safe;
 
 		Integer below = (Integer)world.getBlockTypeIdAt(X, Y - 1, Z);
-		return (safe
-			 && (!safeOpenBlocks.contains(below) || below == 8 || below == 9)	// below target block not open/breathable (so presumably solid), or is water
-			 && !painfulBlocks.contains(below)									// below target block not painful
+		return ((!safeOpenBlocks.contains(below) || below == 8 || below == 9) && !painfulBlocks.contains(below)                                    // below target block not painful
 			);
 	}
 
