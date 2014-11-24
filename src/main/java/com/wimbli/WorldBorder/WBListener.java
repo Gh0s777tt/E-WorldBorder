@@ -1,9 +1,11 @@
 package com.wimbli.WorldBorder;
 
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -68,5 +70,23 @@ public class WBListener implements Listener
 
 		Config.logWarn("Border-checking task was not running! Something on your server apparently killed it. It will now be restarted.");
 		Config.StartBorderTimer();
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onBlockPlace(BlockPlaceEvent event)
+	{
+		if (!Config.preventBlockPlace()) return;
+
+		Location loc = event.getBlockPlaced().getLocation();
+		if (loc == null) return;
+	
+		World world = loc.getWorld();
+		if (world == null) return;
+		BorderData border = Config.Border(world.getName());
+		if (border == null) return;
+		
+		if (!border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound())) {
+			event.setCancelled(true);
+		}
 	}
 }
