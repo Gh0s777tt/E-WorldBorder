@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
-import net.minecraft.server.v1_7_R4.Blocks;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -296,19 +294,22 @@ public class BorderData
 		return correctedPosition(loc, Config.ShapeRound(), false);
 	}
 
-	public static final ArrayList<Material> stupidPlatforms = new ArrayList<Material>(Arrays.asList(new Material[] {Material.STATIONARY_LAVA, Material.LAVA, Material.CACTUS, Material.FENCE_GATE, Material.WEB, Material.SIGN, Material.SIGN_POST}));
+	public static final ArrayList<Integer> stupidPlatforms = new ArrayList<Integer>(Arrays.asList(new Integer[] {10, 11, 81, 107, 183, 184, 185, 186, 187, 30, 63, 68}));
 	
 	// check if a particular spot consists of 2 breathable blocks over something relatively solid
 	private boolean isSafeSpot(World world, int X, int Y, int Z, boolean flying)
 	{
 		
+		Block feetSpace = world.getBlockAt(X, Y, Z);
+		Block headSpace = world.getBlockAt(X, Y + 1, Z);
+		Block platform = world.getBlockAt(X, Y - 1, Z);
+		
 		//Checks for two clear blocks with a solid base to stand on
-		boolean emptySpace = ((world.getBlockAt(X, Y, Z).isEmpty() || world.getBlockAt(X, Y, Z).getType().isTransparent()) && (world.getBlockAt(X, Y + 1, Z).isEmpty() || world.getBlockAt(X, Y + 1, Z).getType().isTransparent()) && (world.getBlockAt(X, Y - 1, Z).isEmpty() != true));
+		boolean emptySpace = ((feetSpace.isEmpty() || feetSpace.getType().isTransparent()) && (headSpace.isEmpty() || headSpace.getType().isTransparent()) && (platform.isEmpty() != true));
 		
 		//Checks if base is safe to stand on
-		Material platform = world.getBlockAt(X, Y - 1, Z).getType();
 		
-		boolean stupidPlatform = stupidPlatforms.contains(platform);
+		boolean stupidPlatform = stupidPlatforms.contains(platform.getTypeId());
 		
 		boolean safe = emptySpace && (stupidPlatform != true);
 		
