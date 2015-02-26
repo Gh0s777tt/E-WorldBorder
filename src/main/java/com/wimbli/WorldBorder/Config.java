@@ -55,6 +55,8 @@ public class Config
 	private static int fillAutosaveFrequency = 30;
 	private static int fillMemoryTolerance = 500;
 	private static boolean preventBlockPlace = false;
+	private static int searchArea = 0;
+	private static boolean fixTpTarget = false;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -281,6 +283,16 @@ public class Config
 	public static boolean getDenyEnderpearl()
 	{
 		return denyEnderpearl;
+	}
+
+	public static boolean getFixTpTarget()
+	{
+		return fixTpTarget;
+	}
+
+	public static int getSearchArea()
+	{
+		return searchArea;
 	}
 
 	public static void setDenyEnderpearl(boolean enable)
@@ -580,6 +592,8 @@ public class Config
 		importBypassStringList(cfg.getStringList("bypass-list-uuids"));
 		fillMemoryTolerance = cfg.getInt("fill-memory-tolerance", 500);
 		preventBlockPlace = cfg.getBoolean("prevent-block-place");
+		searchArea = cfg.getInt("search-area", 0);
+		fixTpTarget = cfg.getBoolean("fix-tp-target");
 
 		StartBorderTimer();
 
@@ -687,6 +701,8 @@ public class Config
 		cfg.set("bypass-list-uuids", exportBypassStringList());
 		cfg.set("fill-memory-tolerance", fillMemoryTolerance);
 		cfg.set("prevent-block-place", preventBlockPlace);
+		cfg.set("search-area", searchArea);
+		cfg.set("fix-tp-target", fixTpTarget);
 
 		cfg.set("worlds", null);
 		for(Entry<String, BorderData> stringBorderDataEntry : borders.entrySet())

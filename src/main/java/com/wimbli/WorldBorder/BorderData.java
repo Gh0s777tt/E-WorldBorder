@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 
 
@@ -275,9 +276,52 @@ public class BorderData
 		if (!tChunk.isLoaded())
 			tChunk.load();
 
+		double originalY = yLoc;
+
 		yLoc = getSafeY(loc.getWorld(), ixLoc, Location.locToBlock(yLoc), izLoc, flying);
 		if (yLoc == -1)
-			return null;
+		{
+			int searchArea = Config.getSearchArea();
+			for (int cX = ixLoc - searchArea; cX <= ixLoc + searchArea; ++cX) {
+				for (int cZ = izLoc - searchArea; cZ <= izLoc + searchArea; ++cZ) {
+					if (cX == ixLoc && cZ == izLoc)
+						continue; // Skips the block that was already checked
+
+					if (insideBorder(new CoordXZ(cX, cZ)))
+						continue;
+
+					ixLoc = cX;
+					izLoc = cZ;
+
+
+					// Make sure the chunk we're checking in is actually loaded
+					tChunk = loc.getWorld().getChunkAt(CoordXZ.blockToChunk(ixLoc), CoordXZ.blockToChunk(izLoc));
+					if (!tChunk.isLoaded())
+						tChunk.load();
+
+					yLoc = getSafeY(loc.getWorld(), ixLoc, Location.locToBlock(yLoc), izLoc, flying);
+					if (yLoc != -1) {
+						xLoc = cX;
+						zLoc = cZ;
+						ixLoc = Location.locToBlock(xLoc);
+						izLoc = Location.locToBlock(zLoc);
+						break;
+					}
+				}
+			}
+
+			if (yLoc == -1)
+			{
+				if (Config.getFixTpTarget()) {
+					loc.getWorld().getBlockAt(ixLoc, Location.locToBlock(originalY) - 1, izLoc).setType(Material.STONE);
+					loc.getWorld().getBlockAt(ixLoc, Location.locToBlock(originalY), izLoc).setType(Material.AIR);
+					loc.getWorld().getBlockAt(ixLoc, Location.locToBlock(originalY) + 1, izLoc).setType(Material.AIR);
+					return new Location(loc.getWorld(), Math.floor(xLoc) + 0.5, originalY, Math.floor(zLoc) + 0.5, loc.getYaw(), loc.getPitch());
+				}
+				return null;
+			}
+			return new Location(loc.getWorld(), Math.floor(xLoc) + 0.5, yLoc, Math.floor(zLoc) + 0.5, loc.getYaw(), loc.getPitch());
+		}
 
 		return new Location(loc.getWorld(), Math.floor(xLoc) + 0.5, yLoc, Math.floor(zLoc) + 0.5, loc.getYaw(), loc.getPitch());
 	}
