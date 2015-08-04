@@ -68,11 +68,11 @@ public class Config
 
 	public static void setBorder(String world, BorderData border, boolean logIt)
 	{
-		if(!border.getShape())
+		if(border.getShape()==null || !border.getShape())
 		{
 			if(border.getRadiusX()==border.getRadiusZ())
 			{
-				org.bukkit.WorldBorder wb = WorldBorder.plugin.getServer().getWorld("").getWorldBorder();
+				org.bukkit.WorldBorder wb = WorldBorder.plugin.getServer().getWorld(world).getWorldBorder();
 				wb.setCenter(border.getX(), border.getZ());
 				wb.setSize(border.getRadiusX());
 				wb.setDamageAmount(0);
