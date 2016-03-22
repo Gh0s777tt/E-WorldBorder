@@ -20,7 +20,12 @@ public class WBListener implements Listener
 			return;
 
 		if (Config.Debug())
-			Config.log("Teleport cause: " + event.getCause().toString());
+			Config.log("General Teleport cause: " + event.getCause().toString());
+
+		if (PlayerTeleportEvent.TeleportCause.NETHER_PORTAL == event.getCause()) {
+			Config.log("Skipping teleport management event - covered by onPlayerPortal");
+			return;
+		}
 
 		Location newLoc = BorderCheckTask.checkPlayer(event.getPlayer(), event.getTo(), true, true);
 		if (newLoc != null)
@@ -38,13 +43,19 @@ public class WBListener implements Listener
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerPortal(PlayerPortalEvent event)
 	{
+		if (Config.Debug())
+			Config.log("Player Portal Teleport cause: " + event.getCause().toString());
+
 		// if knockback is set to 0, or portal redirection is disabled, simply return
 		if (Config.KnockBack() == 0.0 || !Config.portalRedirection())
 			return;
 
 		Location newLoc = BorderCheckTask.checkPlayer(event.getPlayer(), event.getTo(), true, false);
-		if (newLoc != null)
+		if (newLoc != null) {
 			event.setTo(newLoc);
+		}
+
+		BorderCheckTask.timedPlayerExemption(event.getPlayer(), 100l);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)

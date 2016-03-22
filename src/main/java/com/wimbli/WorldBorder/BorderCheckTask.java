@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.bukkit.World;
-
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class BorderCheckTask implements Runnable
 {
@@ -38,6 +38,30 @@ public class BorderCheckTask implements Runnable
 
 	// track players who are being handled (moved back inside the border) already; needed since Bukkit is sometimes sending teleport events with the old (now incorrect) location still indicated, which can lead to a loop when we then teleport them thinking they're outside the border, triggering event again, etc.
 	private static Set<String> handlingPlayers = Collections.synchronizedSet(new LinkedHashSet<String>());
+
+	/**
+	 * In 1.9, there is a significant delay between teleportation event and when the player's location is actually updated.
+	 * However, the player world is updated immediately. This disconnection causes the regular checkPlayer to 
+	 * incorrectly test the player's prior-world location against the new-world location during that inbetween period.
+	 * 
+	 * This function allows a temporary delay against the check to let Minecraft "catch up" the player's _real_ location.
+	 */
+	public static void timedPlayerExemption(final Player player, long delay) {
+		handlingPlayers.add(player.getName().toLowerCase());
+
+		new BukkitRunnable() {
+			private final String playerName = player.getName().toLowerCase();
+			@Override
+			public void run() {
+				handlingPlayers.remove(playerName);
+				if (Config.Debug())
+					Config.log("Exemption for " + playerName + " expired");
+			}
+		}.runTaskLater(WorldBorder.plugin, delay);
+
+		if (Config.Debug())
+			Config.log("Exempting " + player.getName().toLowerCase() + " for " + delay + " ticks.");
+	}
 
 	// set targetLoc only if not current player location; set returnLocationOnly to true to have new Location returned if they need to be moved to one, instead of directly handling it
 	public static Location checkPlayer(Player player, Location targetLoc, boolean returnLocationOnly, boolean notify)
