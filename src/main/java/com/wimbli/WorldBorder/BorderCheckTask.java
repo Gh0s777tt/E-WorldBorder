@@ -2,8 +2,9 @@ package com.wimbli.WorldBorder;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
 
@@ -17,7 +18,7 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.bukkit.World;
-
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class BorderCheckTask implements Runnable
 {
@@ -36,8 +37,97 @@ public class BorderCheckTask implements Runnable
 		}
 	}
 
-	// track players who are being handled (moved back inside the border) already; needed since Bukkit is sometimes sending teleport events with the old (now incorrect) location still indicated, which can lead to a loop when we then teleport them thinking they're outside the border, triggering event again, etc.
-	private static Set<String> handlingPlayers = Collections.synchronizedSet(new LinkedHashSet<String>());
+	/** track players who are being handled (moved back inside the border) already; needed 
+	 * since Bukkit is sometimes sending teleport events with the old (now incorrect) location 
+	 * still indicated, which can lead to a loop when we then teleport them thinking they're 
+	 * outside the border, triggering event again, etc.
+	 */
+	private static Map<String, BukkitRunnable> handlingPlayers = Collections.synchronizedMap(new LinkedHashMap<String, BukkitRunnable>());
+
+	/**
+	 * In 1.9, there is a significant delay between teleportation event and when the player's location is actually updated.
+	 * However, the player world is updated immediately. This disconnection causes the regular checkPlayer to 
+	 * incorrectly test the player's prior-world location against the new-world location during that amorphous
+	 * in-between period. Basically, this checks for the location to actually update, e.g. to be different from the
+	 * "from" location of the portal event.
+	 * 
+	 * This function allows a configurable recheck to let Minecraft "catch up" the player's <i>real</i> location.
+	 * 
+	 * In the meantime, the player is exempted from border crossing checks (and from spurious additional teleport event
+	 * checks).
+	 * 
+	 * Note that additional portal teleports (e.g. if the player immediately portals back) will reset
+	 * this check gracefully. 
+	 * 
+	 * @param player The player who is being exempted.
+	 * @param prior the location the player has come from
+	 * @param maxDelay The <i>maximum</i> ticks to spend exempting this player
+	 * @param recheckDelay The ticks to wait inbetween rechecks.
+	 */
+	public static void timedPlayerExemption(final Player player, final Location prior, final long maxDelay, final long recheckDelay) {
+
+		// Check for existing watch; cancel if one exists.
+		BukkitRunnable alreadyWatching = handlingPlayers.get(player.getName().toLowerCase());
+		if (alreadyWatching != null) {
+			try {
+				alreadyWatching.cancel(); 
+			} catch (IllegalStateException e){}
+		}
+		
+		alreadyWatching = new BukkitRunnable() {
+				private final String playerName = player.getName().toLowerCase();
+				private final UUID playerUUID = player.getUniqueId();
+				private long currentDelay = recheckDelay;
+				@Override
+				public void run() {
+					// Are we done checking?
+					if (currentDelay > maxDelay) {
+						this.cancel();
+						handlingPlayers.remove(playerName);
+						if (Config.Debug())
+							Config.log("Done watching " + playerName + ". They are in the hands of fate, now.");
+						return;
+					}
+					currentDelay += recheckDelay;
+					
+					// Is this player still online?
+					Player player = Bukkit.getPlayer(playerUUID);
+					if (player == null) { // assume offline 
+						this.cancel();
+						handlingPlayers.remove(playerName);
+						if (Config.Debug())
+							Config.log("Looks like " + playerName + " logged off. Suspending watch.");
+						return;
+					}
+					
+					// Are we still stuck between worlds?
+					Location current = player.getLocation();
+					if (current.getBlockX() != prior.getBlockX() && current.getBlockY() != prior.getBlockY() &&
+							current.getBlockZ() != prior.getBlockZ()) {
+						// No, we made it!
+						this.cancel();
+						handlingPlayers.remove(playerName);
+						if (Config.Debug()) 
+							Config.log("Minecraft caught up with " + playerName + ". Ending watch.");
+						return;
+					}
+					
+					if (Config.Debug()) {
+						Config.log("Based on teleport " + playerName + 
+								" has moved, but Minecraft still has them at old location " + 
+								prior.toString() + ". Checking again in " + recheckDelay);
+					}
+				}
+			};
+
+		// Store the exemption and start the recheck.
+		handlingPlayers.put(player.getName().toLowerCase(), alreadyWatching);
+		alreadyWatching.runTaskTimer(WorldBorder.plugin, recheckDelay, recheckDelay);
+
+		if (Config.Debug())
+			Config.log("Rechecking " + player.getName() + "'s world every " + 
+					recheckDelay + " ticks for " + maxDelay + " ticks.");
+	}
 
 	// set targetLoc only if not current player location; set returnLocationOnly to true to have new Location returned if they need to be moved to one, instead of directly handling it
 	public static Location checkPlayer(Player player, Location targetLoc, boolean returnLocationOnly, boolean notify)
@@ -56,11 +146,11 @@ public class BorderCheckTask implements Runnable
 			return null;
 
 		// if player is in bypass list (from bypass command), allow them beyond border; also ignore players currently being handled already
-		if (Config.isPlayerBypassing(player.getUniqueId()) || handlingPlayers.contains(player.getName().toLowerCase()))
+		if (Config.isPlayerBypassing(player.getUniqueId()) || handlingPlayers.containsKey(player.getName().toLowerCase()))
 			return null;
 
 		// tag this player as being handled so we can't get stuck in a loop due to Bukkit currently sometimes repeatedly providing incorrect location through teleport event
-		handlingPlayers.add(player.getName().toLowerCase());
+		handlingPlayers.put(player.getName().toLowerCase(), null);
 
 		Location newLoc = newLocation(player, loc, border, notify);
 		boolean handlingVehicle = false;

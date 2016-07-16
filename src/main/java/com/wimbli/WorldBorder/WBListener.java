@@ -9,7 +9,6 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.Location;
 
-
 public class WBListener implements Listener
 {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -19,8 +18,11 @@ public class WBListener implements Listener
 		if (Config.KnockBack() == 0.0)
 			return;
 
-		if (Config.Debug())
-			Config.log("Teleport cause: " + event.getCause().toString());
+		if (event instanceof PlayerPortalEvent) { // Avoid overlapping management.
+			if (Config.Debug())
+				Config.log("Skipping teleport management event - covered by onPlayerPortal");
+			return;
+		}
 
 		Location newLoc = BorderCheckTask.checkPlayer(event.getPlayer(), event.getTo(), true, true);
 		if (newLoc != null)
@@ -38,13 +40,20 @@ public class WBListener implements Listener
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerPortal(PlayerPortalEvent event)
 	{
+		if (Config.Debug())
+			Config.log("Player Portal Teleport cause: " + event.getCause().toString());
+
 		// if knockback is set to 0, or portal redirection is disabled, simply return
 		if (Config.KnockBack() == 0.0 || !Config.portalRedirection())
 			return;
 
 		Location newLoc = BorderCheckTask.checkPlayer(event.getPlayer(), event.getTo(), true, false);
-		if (newLoc != null)
+		if (newLoc != null) {
 			event.setTo(newLoc);
+		}
+
+		BorderCheckTask.timedPlayerExemption(event.getPlayer(), event.getFrom().clone(),
+				Config.getMaxExemptionTicks(), Config.getPortalRecheckTicks());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)

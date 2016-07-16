@@ -56,6 +56,8 @@ public class Config
 	private static int fillMemoryTolerance = 500;
 	private static boolean preventBlockPlace = false;
 	private static boolean preventMobSpawn = false;
+	private static long maxExemptionTicks = 21l;
+	private static long portalRecheckTicks = 4l; // These together give 5 recheck chances over the course of a second.
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -544,6 +546,21 @@ public class Config
 
 		return false;
 	}
+	
+	
+	public static long getMaxExemptionTicks() {
+		return maxExemptionTicks;
+	}
+	public static void setMaxExemptionTicks(long maxExemptionTicks) {
+		Config.maxExemptionTicks = maxExemptionTicks;
+	}
+	
+	public static long getPortalRecheckTicks() {
+		return portalRecheckTicks;
+	}
+	public static void setPortalRecheckTicks(long portalRecheckTicks) {
+		Config.portalRecheckTicks = portalRecheckTicks;
+	}
 
 
 	public static String replaceAmpColors (String message)
@@ -605,6 +622,8 @@ public class Config
 		fillMemoryTolerance = cfg.getInt("fill-memory-tolerance", 500);
 		preventBlockPlace = cfg.getBoolean("prevent-block-place");
 		preventMobSpawn = cfg.getBoolean("prevent-mob-spawn");
+		maxExemptionTicks = cfg.getLong("max-exemption-ticks", 21l);
+		portalRecheckTicks = cfg.getLong("portal-recheck-ticks", 4l);
 
 		StartBorderTimer();
 
@@ -713,6 +732,8 @@ public class Config
 		cfg.set("fill-memory-tolerance", fillMemoryTolerance);
 		cfg.set("prevent-block-place", preventBlockPlace);
 		cfg.set("prevent-mob-spawn", preventMobSpawn);
+		cfg.set("max-exemption-ticks", maxExemptionTicks);
+		cfg.set("portal-recheck-ticks", portalRecheckTicks);
 
 		cfg.set("worlds", null);
 		for(Entry<String, BorderData> stringBorderDataEntry : borders.entrySet())
@@ -751,4 +772,5 @@ public class Config
 		if (logIt)
 			logConfig("Configuration saved.");
 	}
+
 }
