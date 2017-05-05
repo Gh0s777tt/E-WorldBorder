@@ -6,8 +6,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 // image output stuff, for debugging method at bottom of this file
@@ -23,13 +25,13 @@ public class WorldFileData
 	private transient World world;
 	private transient File regionFolder = null;
 	private transient File[] regionFiles = null;
-	private transient Player notifyPlayer = null;
+	private transient UUID notifyPlayerUUID = null;
 	private transient Map<CoordXZ, List<Boolean>> regionChunkExistence = Collections.synchronizedMap(new HashMap<CoordXZ, List<Boolean>>());
 
 	// Use this static method to create a new instance of this class. If null is returned, there was a problem so any process relying on this should be cancelled.
-	public static WorldFileData create(World world, Player notifyPlayer)
+	public static WorldFileData create(World world, UUID notifyPlayerUUID)
 	{
-		WorldFileData newData = new WorldFileData(world, notifyPlayer);
+		WorldFileData newData = new WorldFileData(world, notifyPlayerUUID);
 
 		newData.regionFolder = new File(newData.world.getWorldFolder(), "region");
 		if (!newData.regionFolder.exists() || !newData.regionFolder.isDirectory())
@@ -68,10 +70,10 @@ public class WorldFileData
 	}
 
 	// the constructor is private; use create() method above to create an instance of this class.
-	private WorldFileData(World world, Player notifyPlayer)
+	private WorldFileData(World world, UUID notifyPlayerUUID)
 	{
 		this.world = world;
-		this.notifyPlayer = notifyPlayer;
+		this.notifyPlayerUUID = notifyPlayerUUID;
 	}
 
 
@@ -220,7 +222,10 @@ public class WorldFileData
 	private void sendMessage(String text)
 	{
 		Config.log("[WorldData] " + text);
-		if (notifyPlayer != null && notifyPlayer.isOnline())
+		
+		Player notifyPlayer = Bukkit.getPlayer(notifyPlayerUUID);
+		
+		if (notifyPlayer != null)
 			notifyPlayer.sendMessage("[WorldData] " + text);
 	}
 

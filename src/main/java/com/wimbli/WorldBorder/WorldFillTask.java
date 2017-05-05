@@ -4,12 +4,13 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent;
 import com.wimbli.WorldBorder.Events.WorldBorderFillStartEvent;
@@ -26,7 +27,7 @@ public class WorldFillTask implements Runnable
 	private transient boolean paused = false;
 	private transient boolean pausedForMemory = false;
 	private transient int taskID = -1;
-	private transient Player notifyPlayer = null;
+	private transient UUID notifyPlayerUUID = null;
 	private transient int chunksPerRun = 1;
 	private transient boolean continueNotice = false;
 	private transient boolean forceLoad = false;
@@ -62,7 +63,7 @@ public class WorldFillTask implements Runnable
 	public WorldFillTask(Server theServer, Player player, String worldName, int fillDistance, int chunksPerRun, int tickFrequency, boolean forceLoad)
 	{
 		this.server = theServer;
-		this.notifyPlayer = player;
+		this.notifyPlayerUUID = player.getUniqueId();
 		this.fillDistance = fillDistance;
 		this.tickFrequency = tickFrequency;
 		this.chunksPerRun = chunksPerRun;
@@ -88,7 +89,7 @@ public class WorldFillTask implements Runnable
 		}
 
 		// load up a new WorldFileData for the world in question, used to scan region files for which chunks are already fully generated and such
-		worldData = WorldFileData.create(world, notifyPlayer);
+		worldData = WorldFileData.create(world, notifyPlayerUUID);
 		if (worldData == null)
 		{
 			this.stop();
@@ -407,8 +408,11 @@ public class WorldFillTask implements Runnable
 		int availMem = Config.AvailableMemory();
 
 		Config.log("[Fill] " + text + " (free mem: " + availMem + " MB)");
-		if (notifyPlayer != null)
-			notifyPlayer.sendMessage("[Fill] " + text);
+        
+        Player notifyPlayer = Bukkit.getPlayer(notifyPlayerUUID);
+        
+        if (notifyPlayer != null)
+            notifyPlayer.sendMessage("[Fill] " + text);
 
 		if (availMem < 200)
 		{	// running low on memory, auto-pause
@@ -416,8 +420,10 @@ public class WorldFillTask implements Runnable
 			Config.StoreFillTask();
 			text = "Available memory is very low, task is pausing. A cleanup will be attempted now, and the task will automatically continue if/when sufficient memory is freed up.\n Alternatively, if you restart the server, this task will automatically continue once the server is back up.";
 			Config.log("[Fill] " + text);
-			if (notifyPlayer != null)
-				notifyPlayer.sendMessage("[Fill] " + text);
+	        
+	        if (notifyPlayer != null)
+	            notifyPlayer.sendMessage("[Fill] " + text);
+	        
 			// prod Java with a request to go ahead and do GC to clean unloaded chunks from memory; this seems to work wonders almost immediately
 			// yes, explicit calls to System.gc() are normally bad, but in this case it otherwise can take a long long long time for Java to recover memory
 			System.gc();
