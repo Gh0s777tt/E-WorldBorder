@@ -1,11 +1,15 @@
 package com.wimbli.WorldBorder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 
 public class BorderData
@@ -290,29 +294,27 @@ public class BorderData
 		return correctedPosition(loc, Config.ShapeRound(), false);
 	}
 
-	//these material IDs are acceptable for places to teleport player; breathable blocks and water
-	public static final LinkedHashSet<Integer> safeOpenBlocks = new LinkedHashSet<Integer>(Arrays.asList(
-		 new Integer[] {0, 6, 8, 9, 27, 28, 30, 31, 32, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 83, 90, 93, 94, 96, 104, 105, 106, 115, 131, 132, 141, 142, 149, 150, 157, 171}
-	));
-
-	//these material IDs are ones we don't want to drop the player onto, like cactus or lava or fire or activated Ender portal
-	public static final LinkedHashSet<Integer> painfulBlocks = new LinkedHashSet<Integer>(Arrays.asList(
-		 new Integer[] {10, 11, 51, 81, 119}
-	));
-
+	public static final ArrayList<Integer> stupidPlatforms = new ArrayList<Integer>(Arrays.asList(new Integer[] {10, 11, 81, 107, 183, 184, 185, 186, 187, 30, 63, 68}));
+	
 	// check if a particular spot consists of 2 breathable blocks over something relatively solid
 	private boolean isSafeSpot(World world, int X, int Y, int Z, boolean flying)
 	{
-		boolean safe = safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y, Z))		// target block open and safe
-					&& safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y + 1, Z));	// above target block open and safe
-		if (!safe || flying)
-			return safe;
-
-		Integer below = (Integer)world.getBlockTypeIdAt(X, Y - 1, Z);
-		return (safe
-			 && (!safeOpenBlocks.contains(below) || below == 8 || below == 9)	// below target block not open/breathable (so presumably solid), or is water
-			 && !painfulBlocks.contains(below)									// below target block not painful
-			);
+		
+		Block feetSpace = world.getBlockAt(X, Y, Z);
+		Block headSpace = world.getBlockAt(X, Y + 1, Z);
+		Block platform = world.getBlockAt(X, Y - 1, Z);
+		
+		//Checks for two clear blocks with a solid base to stand on
+		boolean emptySpace = ((feetSpace.isEmpty() || feetSpace.getType().isTransparent()) && (headSpace.isEmpty() || headSpace.getType().isTransparent()) && (platform.isEmpty() != true));
+		
+		//Checks if base is safe to stand on
+		
+		boolean stupidPlatform = stupidPlatforms.contains(platform.getTypeId());
+		
+		boolean safe = emptySpace && (stupidPlatform != true);
+		
+		return (flying || safe);
+		
 	}
 
 	private static final int limBot = 0;
