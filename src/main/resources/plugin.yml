@@ -51,6 +51,7 @@ permissions:
     children:
       worldborder.bypass: true
       worldborder.bypasslist: true
+      worldborder.autobypass: true
       worldborder.clear: true
       worldborder.debug: true
       worldborder.delay: true
@@ -81,6 +82,9 @@ permissions:
     default: op
   worldborder.bypasslist:
     description: Can get list of players with border bypass enabled
+    default: op
+  worldborder.autobypass:
+    description: Bypasses borders without needed to enable bypass mode
     default: op
   worldborder.clear:
     description: Can remove any border
