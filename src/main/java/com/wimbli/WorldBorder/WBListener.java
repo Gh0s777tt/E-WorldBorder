@@ -75,6 +75,8 @@ public class WBListener implements Listener
 	 * Check if there is a fill task running, and if yes, if it's for the
 	 * world that the unload event refers to and if the chunk should be
 	 * kept in memory because generation still needs it.
+	 * 
+	 * setCancelled deprecated in 1.14.1-R0.1 Bukkit API
 	 */
 	@EventHandler
 	public void onChunkUnload(ChunkUnloadEvent e)
@@ -85,7 +87,8 @@ public class WBListener implements Listener
 			if (e.getWorld() == Config.fillTask.getWorld() 
 			&&  Config.fillTask.chunkOnUnloadPreventionList(chunk.getX(), chunk.getZ()))
 			{
-				e.setCancelled(true);
+				Config.logWarn("Unloading a chunk we still need!");
+				//e.setCancelled(true);
 			}
 		}
 	}

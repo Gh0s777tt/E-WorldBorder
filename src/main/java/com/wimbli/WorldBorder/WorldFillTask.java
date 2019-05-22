@@ -234,7 +234,10 @@ public class WorldFillTask implements Runnable
 			if (worldData.doesChunkExist(dependency.forX, dependency.forZ)) 
 				chunksToUnload.add(new CoordXZ(dependency.neededX, dependency.neededZ));
 			else
+			{
+				world.setChunkForceLoaded(dependency.neededX, dependency.neededZ, true);
 				newPreventUnload.add(dependency);
+			}
 		}
 		preventUnload = newPreventUnload;
 
@@ -247,6 +250,7 @@ public class WorldFillTask implements Runnable
 		for (CoordXZ unload: chunksToUnload)
 		{
 			if (!chunkOnUnloadPreventionList(unload.x, unload.z))
+				world.setChunkForceLoaded(unload.x, unload.z, false);
 				world.unloadChunkRequest(unload.x, unload.z);
 		}
 
@@ -443,6 +447,7 @@ public class WorldFillTask implements Runnable
 		preventUnload = null;
 		for (UnloadDependency entry: tempPreventUnload)
 		{
+			world.setChunkForceLoaded(entry.neededX, entry.neededZ, false);
 			world.unloadChunkRequest(entry.neededX, entry.neededZ);
 		}
 	}
