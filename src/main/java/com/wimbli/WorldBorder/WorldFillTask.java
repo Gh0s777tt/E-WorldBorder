@@ -120,7 +120,8 @@ public class WorldFillTask implements Runnable
 				sendMessage("You must specify a world!");
 			else
 				sendMessage("World \"" + worldName + "\" not found!");
-			this.stop();
+			//In case world is not loaded yet, do not delete saved progress
+			this.stop(true);
 			return;
 		}
 
@@ -128,7 +129,7 @@ public class WorldFillTask implements Runnable
 		if (this.border == null)
 		{
 			sendMessage("No border found for world \"" + worldName + "\"!");
-			this.stop();
+			this.stop(false);
 			return;
 		}
 
@@ -136,7 +137,7 @@ public class WorldFillTask implements Runnable
 		worldData = WorldFileData.create(world, notifyPlayer);
 		if (worldData == null)
 		{
-			this.stop();
+			this.stop(false);
 			return;
 		}
 		
@@ -169,7 +170,7 @@ public class WorldFillTask implements Runnable
 
 	public void setTaskID(int ID)
 	{	
-		if (ID == -1) this.stop();
+		if (ID == -1) this.stop(false);
 		this.taskID = ID;
 	}
 
@@ -353,7 +354,9 @@ public class WorldFillTask implements Runnable
 				lastLegX = x;
 				lastLegZ = z;
 				lastLegTotal = reportTotal + reportNum;
-			} else {
+			} 
+			else 
+			{
 				refX = lastLegX;
 				refZ = lastLegZ;
 				refTotal = lastLegTotal;
@@ -419,18 +422,22 @@ public class WorldFillTask implements Runnable
 		world.save();
 		Bukkit.getServer().getPluginManager().callEvent(new WorldBorderFillFinishedEvent(world, reportTotal));
 		sendMessage("task successfully completed for world \"" + refWorld() + "\"!");
-		this.stop();
+		this.stop(false);
 	}
 
 	// for cancelling prematurely
-	public void cancel()
+	public void cancel(boolean SaveFill)
 	{
-		this.stop();
+		this.stop(SaveFill);
 	}
 
 	// we're done, whether finished or cancelled
-	private void stop()
+	private void stop(boolean SaveFill)
 	{
+		//If being called by onDisable(), don't delete fill progress
+		if (!SaveFill)
+			Config.UnStoreFillTask();
+		
 		if (server == null)
 			return;
 
@@ -479,8 +486,7 @@ public class WorldFillTask implements Runnable
 			Config.StoreFillTask();
 			reportProgress();
 		}
-		else
-			Config.UnStoreFillTask();
+
 	}
 	public boolean isPaused()
 	{
@@ -521,6 +527,8 @@ public class WorldFillTask implements Runnable
 			lastAutosave = lastReport;
 			sendMessage("Saving the world to disk, just to be on the safe side.");
 			world.save();
+			//In case of hard-crashes
+			Config.StoreFillTask();
 		}
 	}
 
@@ -556,6 +564,11 @@ public class WorldFillTask implements Runnable
 		this.length = length;
 		this.reportTotal = totalDone;
 		this.continueNotice = true;
+		//Prevents saving zeroes on first StoreFillTask after restoring
+		this.refX = x;
+		this.refZ = z;
+		this.refLength = length;
+		this.refTotal = totalDone;
 	}
 	public int refX()
 	{
