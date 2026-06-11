@@ -1,0 +1,16 @@
+# Auto-normalize line endings on commit
+* text=auto
+
+# Scripts that require specific line endings
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+gradlew text eol=lf
+
+# Binary files
+*.jar binary
+*.psd binary
+
+# Keep GitHub's language stats focused on our source (exclude the Gradle wrapper)
+gradle/wrapper/gradle-wrapper.jar linguist-vendored
+gradlew                           linguist-vendored
+gradlew.bat                       linguist-vendored
