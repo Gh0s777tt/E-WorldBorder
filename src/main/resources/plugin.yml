@@ -1,15 +1,15 @@
-name: WorldBorder
+name: E-WorldBorder
 author: Brettflan
-description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.9.10 (beta)
-api-version: 1.13
+description: Efficient, feature-rich plugin for limiting the size of your worlds. Kotlin rewrite for Paper 1.21.
+version: '${version}'
+api-version: '1.21'
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:
   - dynmap
 commands:
   wborder:
     description: Primary command for WorldBorder.
-    aliases: [wb]
+    aliases: [wb, worldborder]
     usage: |
            /<command> - list available commands (show help).
            /<command> help [command] - get help on command usage.

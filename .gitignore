@@ -1,7 +1,25 @@
+# Gradle
+.gradle/
+build/
+
+# Legacy Maven (pre-Kotlin) output
 target/
-bin/
+
+# IDE
 .idea/
 *.iml
+*.ipr
+*.iws
 .classpath
 .project
 .settings/
+.vscode/
+out/
+bin/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Photoshop source files (not needed for the build)
+*.psd
