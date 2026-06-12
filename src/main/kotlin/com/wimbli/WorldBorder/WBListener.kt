@@ -6,6 +6,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerPortalEvent
 import org.bukkit.event.player.PlayerTeleportEvent
 import org.bukkit.event.world.ChunkLoadEvent
+import org.bukkit.event.world.WorldLoadEvent
 
 class WBListener : Listener {
 
@@ -44,6 +45,14 @@ class WBListener : Listener {
 
         Config.logWarn("Border-checking task was not running! Something on your server apparently killed it. It will now be restarted.")
         Config.startBorderTimer()
+    }
+
+    @EventHandler
+    fun onWorldLoad(event: WorldLoadEvent) {
+        // a world may load after borders are set (e.g. Multiverse); sync its vanilla border if enabled
+        if (!Config.vanillaBorder) return
+        val border = Config.border(event.world.name) ?: return
+        VanillaBorder.apply(event.world.name, border)
     }
 
     // Note: the legacy onChunkUnload handler that reset the "force loaded" flag is no longer needed —

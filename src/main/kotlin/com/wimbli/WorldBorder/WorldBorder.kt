@@ -33,6 +33,9 @@ class WorldBorder : JavaPlugin() {
         // integrate with DynMap if it's available
         DynMapFeatures.setup()
 
+        // sync Minecraft's built-in (client-side) world borders, if that feature is enabled
+        VanillaBorder.applyAll()
+
         // log the main world's spawn location for reference
         val spawn = server.worlds[0].spawnLocation
         Config.log("For reference, the main world's spawn location is at X: ${Config.coord.format(spawn.x)} Y: ${Config.coord.format(spawn.y)} Z: ${Config.coord.format(spawn.z)}")

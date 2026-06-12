@@ -27,6 +27,7 @@ import com.wimbli.WorldBorder.cmd.CmdSetcorners
 import com.wimbli.WorldBorder.cmd.CmdSetmsg
 import com.wimbli.WorldBorder.cmd.CmdShape
 import com.wimbli.WorldBorder.cmd.CmdTrim
+import com.wimbli.WorldBorder.cmd.CmdVanillaborder
 import com.wimbli.WorldBorder.cmd.CmdWhoosh
 import com.wimbli.WorldBorder.cmd.CmdWrap
 import com.wimbli.WorldBorder.cmd.CmdWshape
@@ -65,6 +66,7 @@ class WBCommand : CommandExecutor {
         addCmd(CmdWshape())
         addCmd(CmdPreventPlace())
         addCmd(CmdPreventSpawn())
+        addCmd(CmdVanillaborder())
         addCmd(CmdDelay())
         addCmd(CmdDynmap())
         addCmd(CmdDynmapmsg())

@@ -77,6 +77,8 @@ object Config {
         private set
     var preventMobSpawn = false
         private set
+    var vanillaBorder = false
+        private set
 
     val message: String get() = msgFmt
     val messageRaw: String get() = msgRaw
@@ -93,6 +95,7 @@ object Config {
             log("Border set. ${borderDescription(world)}")
         save(true)
         DynMapFeatures.showBorder(world, border)
+        VanillaBorder.apply(world, border)
     }
 
     fun setBorder(world: String, radiusX: Int, radiusZ: Int, x: Double, z: Double, shape: Boolean?) {
@@ -138,6 +141,7 @@ object Config {
         log("Removed border for world \"$world\".")
         save(true)
         DynMapFeatures.removeBorder(world)
+        if (vanillaBorder) VanillaBorder.remove(world)
     }
 
     fun removeAllBorders() {
@@ -145,6 +149,7 @@ object Config {
         log("Removed all borders for all worlds.")
         save(true)
         DynMapFeatures.removeAllBorders()
+        if (vanillaBorder) VanillaBorder.removeAll()
     }
 
     fun borderDescription(world: String): String {
@@ -229,6 +234,13 @@ object Config {
         preventMobSpawn = enable
         log("Prevent mob spawn ${if (enable) "enabled" else "disabled"}.")
         save(true)
+    }
+
+    fun setVanillaBorder(enable: Boolean) {
+        vanillaBorder = enable
+        log("Vanilla (client-side) world border display ${if (enable) "enabled" else "disabled"}.")
+        save(true)
+        if (enable) VanillaBorder.applyAll() else VanillaBorder.removeAll()
     }
 
     fun setDenyEnderpearl(enable: Boolean) {
@@ -443,6 +455,7 @@ object Config {
         fillMemoryTolerance = c.getInt("fill-memory-tolerance", 500)
         preventBlockPlace = c.getBoolean("prevent-block-place")
         preventMobSpawn = c.getBoolean("prevent-mob-spawn")
+        vanillaBorder = c.getBoolean("vanilla-border", false)
 
         startBorderTimer()
 
@@ -544,6 +557,7 @@ object Config {
         c.set("fill-memory-tolerance", fillMemoryTolerance)
         c.set("prevent-block-place", preventBlockPlace)
         c.set("prevent-mob-spawn", preventMobSpawn)
+        c.set("vanilla-border", vanillaBorder)
 
         c.set("worlds", null)
         // snapshot under lock to avoid ConcurrentModificationException with async tasks

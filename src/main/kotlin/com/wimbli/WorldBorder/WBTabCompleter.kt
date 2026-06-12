@@ -21,7 +21,7 @@ class WBTabCompleter : TabCompleter {
 
     // suggestions for the value(s) of a given subcommand
     private fun valueCompletions(cmd: String): List<String> = when (cmd) {
-        "whoosh", "portal", "denypearl", "preventblockplace", "preventmobspawn", "dynmap", "debug" -> onOff
+        "whoosh", "portal", "denypearl", "preventblockplace", "preventmobspawn", "dynmap", "debug", "vanillaborder" -> onOff
         "wrap" -> worldNames() + onOff
         "shape" -> shapeValues
         "wshape" -> worldNames() + shapeValues + "default"

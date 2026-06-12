@@ -44,6 +44,7 @@ commands:
            /<command> denypearl <on/off> - stop ender pearls thrown past the border.
            /<command> preventblockplace <on|off> - stop block placement past border.
            /<command> preventmobspawn <on|off> - stop mob spawning past border.
+           /<command> vanillaborder <on|off> - show border as client-side red wall.
            /<command> reload - re-load data from config.yml.
            /<command> debug <on/off> - turn debug mode on or off.
 permissions:
@@ -67,6 +68,7 @@ permissions:
       worldborder.portal: true
       worldborder.preventblockplace: true
       worldborder.preventmobspawn: true
+      worldborder.vanillaborder: true
       worldborder.radius: true
       worldborder.reload: true
       worldborder.remount: true
@@ -127,6 +129,9 @@ permissions:
     default: op
   worldborder.preventmobspawn:
     description: Can prevent spawning of mobs outside the border
+    default: op
+  worldborder.vanillaborder:
+    description: Can enable/disable the client-side vanilla world border display
     default: op
   worldborder.radius:
     description: Can set the radius of an existing border
