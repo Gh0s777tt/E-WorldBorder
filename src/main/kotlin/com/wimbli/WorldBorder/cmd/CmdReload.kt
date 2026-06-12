@@ -19,12 +19,14 @@ class CmdReload : WBCmd() {
     }
 
     override fun execute(sender: CommandSender, player: Player?, params: MutableList<String>, worldName: String?) {
-        if (player != null)
+        if (player != null) {
             Config.log("Reloading config file at the command of player \"${player.name}\".")
+        }
 
         Config.load(WorldBorder.plugin, true)
 
-        if (player != null)
+        if (player != null) {
             sender.msg("WorldBorder configuration reloaded.")
+        }
     }
 }

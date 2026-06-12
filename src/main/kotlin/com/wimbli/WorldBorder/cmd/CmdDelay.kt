@@ -26,8 +26,9 @@ class CmdDelay : WBCmd() {
         val delay: Int
         try {
             delay = params[0].toInt()
-            if (delay < 1)
+            if (delay < 1) {
                 throw NumberFormatException()
+            }
         } catch (ex: NumberFormatException) {
             sendErrorAndHelp(sender, "The timer delay must be an integer of 1 or higher.")
             return
@@ -35,7 +36,8 @@ class CmdDelay : WBCmd() {
 
         Config.setTimerTicks(delay)
 
-        if (player != null)
+        if (player != null) {
             cmdStatus(sender)
+        }
     }
 }

@@ -14,8 +14,9 @@ class MobSpawnListener : Listener {
         val world = loc.world ?: return
         val border = Config.border(world.name) ?: return
 
-        if (!border.insideBorder(loc.x, loc.z, Config.shapeRound))
+        if (!border.insideBorder(loc.x, loc.z, Config.shapeRound)) {
             event.isCancelled = true
+        }
     }
 
     fun unregister() = HandlerList.unregisterAll(this)

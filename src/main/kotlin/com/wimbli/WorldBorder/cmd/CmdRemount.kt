@@ -20,12 +20,13 @@ class CmdRemount : WBCmd() {
 
     override fun cmdStatus(sender: CommandSender) {
         val delay = Config.remountTicks
-        if (delay == 0)
+        if (delay == 0) {
             sender.msg(C_HEAD + "Remount delay set to 0. Players will be left dismounted when knocked back from the border while on a vehicle.")
-        else {
+        } else {
             sender.msg(C_HEAD + "Remount delay set to $delay tick(s). That is roughly ${delay * 50}ms / ${delay * 50.0 / 1000.0} seconds. Setting to 0 would disable remounting.")
-            if (delay < 10)
+            if (delay < 10) {
                 sender.msg(C_ERR + "WARNING:" + C_DESC + " setting this to less than 10 (and greater than 0) is not recommended. This can lead to nasty client glitches.")
+            }
         }
     }
 
@@ -33,8 +34,9 @@ class CmdRemount : WBCmd() {
         val delay: Int
         try {
             delay = params[0].toInt()
-            if (delay < 0)
+            if (delay < 0) {
                 throw NumberFormatException()
+            }
         } catch (ex: NumberFormatException) {
             sendErrorAndHelp(sender, "The remount delay must be an integer of 0 or higher. Setting to 0 will disable remounting.")
             return
@@ -42,7 +44,8 @@ class CmdRemount : WBCmd() {
 
         Config.setRemountTicks(delay)
 
-        if (player != null)
+        if (player != null) {
             cmdStatus(sender)
+        }
     }
 }

@@ -1,0 +1,18 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{kt,kts}]
+ktlint_code_style = intellij_idea
+# the project favours readable inline strings/log lines over hard wrapping
+max_line_length = off
+# the established package (com.wimbli.WorldBorder) intentionally keeps the upstream's capitalised name
+ktlint_standard_package-name = disabled
+# the codebase keeps camelCase for a few private const vals
+ktlint_standard_property-naming = disabled

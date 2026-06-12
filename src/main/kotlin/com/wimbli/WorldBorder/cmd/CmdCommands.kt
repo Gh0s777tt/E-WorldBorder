@@ -29,14 +29,15 @@ class CmdCommands : WBCmd() {
         val pageCount = ceil(examples.size / pageSize.toDouble()).toInt()
 
         // if the specified page number is negative or higher than available, default back to the first page
-        if (page < 0 || page > pageCount)
+        if (page < 0 || page > pageCount) {
             page = if (player == null) 0 else 1
+        }
 
         // send command example header ("<name> <version>")
         val meta = WorldBorder.plugin.pluginMeta
         sender.msg(
             C_HEAD + "${meta.name} ${meta.version}" + "  -  key: " +
-                commandEmphasized("command") + C_REQ + "<required> " + C_OPT + "[optional]"
+                commandEmphasized("command") + C_REQ + "<required> " + C_OPT + "[optional]",
         )
 
         if (page > 0) {
@@ -49,10 +50,11 @@ class CmdCommands : WBCmd() {
 
             // send page footer, if relevant
             val footer = C_HEAD + " (Page $page/$pageCount)              " + cmd(sender)
-            if (page < pageCount)
+            if (page < pageCount) {
                 sender.msg(footer + (page + 1).toString() + C_DESC + " - view next page of commands.")
-            else if (page > 1)
+            } else if (page > 1) {
                 sender.msg(footer + C_DESC + "- view first page of commands.")
+            }
         } else {
             // if page "0" is specified, send all examples (default for console, can be requested by a player)
             for (example in examples) {

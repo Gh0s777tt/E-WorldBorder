@@ -26,8 +26,9 @@ class CmdSetmsg : WBCmd() {
         val message = StringBuilder()
         var first = true
         for (param in params) {
-            if (!first)
+            if (!first) {
                 message.append(" ")
+            }
             message.append(param)
             first = false
         }

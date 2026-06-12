@@ -12,8 +12,9 @@ class WorldBorder : JavaPlugin() {
 
     override fun onEnable() {
         plugin = this
-        if (wbCommand == null)
+        if (wbCommand == null) {
             wbCommand = WBCommand()
+        }
 
         // Load (or create new) config file
         Config.load(this, false)
@@ -27,11 +28,13 @@ class WorldBorder : JavaPlugin() {
         // keep an eye on teleports, to redirect them to a spot inside the border if necessary
         server.pluginManager.registerEvents(WBListener(), this)
 
-        if (Config.preventBlockPlace)
+        if (Config.preventBlockPlace) {
             enableBlockPlaceListener(true)
+        }
 
-        if (Config.preventMobSpawn)
+        if (Config.preventMobSpawn) {
             enableMobSpawnListener(true)
+        }
 
         // integrate with DynMap if it's available
         DynMapFeatures.setup()
@@ -68,17 +71,19 @@ class WorldBorder : JavaPlugin() {
     fun getWorldBorder(worldName: String): BorderData? = Config.border(worldName)
 
     fun enableBlockPlaceListener(enable: Boolean) {
-        if (enable)
+        if (enable) {
             blockPlaceListener = BlockPlaceListener().also { server.pluginManager.registerEvents(it, this) }
-        else
+        } else {
             blockPlaceListener?.unregister()
+        }
     }
 
     fun enableMobSpawnListener(enable: Boolean) {
-        if (enable)
+        if (enable) {
             mobSpawnListener = MobSpawnListener().also { server.pluginManager.registerEvents(it, this) }
-        else
+        } else {
             mobSpawnListener?.unregister()
+        }
     }
 
     companion object {

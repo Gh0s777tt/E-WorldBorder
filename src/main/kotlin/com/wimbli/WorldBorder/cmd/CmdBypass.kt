@@ -74,14 +74,16 @@ class CmdBypass : WBCmd() {
         Config.setPlayerBypass(uuid, bypassing)
 
         val target = Bukkit.getPlayerExact(targetName)
-        if (target != null && target.isOnline)
+        if (target != null && target.isOnline) {
             target.msg("Border bypass is now " + enabledColored(bypassing) + ".")
+        }
 
         Config.log(
             "Border bypass for player \"$targetName\" is " + (if (bypassing) "enabled" else "disabled") +
-                (if (player != null) " at the command of player \"${player.name}\"" else "") + "."
+                (if (player != null) " at the command of player \"${player.name}\"" else "") + ".",
         )
-        if (player != null && player !== target)
+        if (player != null && player !== target) {
             sender.msg("Border bypass for player \"$targetName\" is " + enabledColored(bypassing) + ".")
+        }
     }
 }

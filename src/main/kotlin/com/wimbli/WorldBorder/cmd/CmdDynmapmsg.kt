@@ -26,7 +26,8 @@ class CmdDynmapmsg : WBCmd() {
 
         Config.setDynmapMessage(message)
 
-        if (player != null)
+        if (player != null) {
             cmdStatus(sender)
+        }
     }
 }

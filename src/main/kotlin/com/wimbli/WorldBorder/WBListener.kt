@@ -15,8 +15,9 @@ class WBListener : Listener {
         // if knockback is set to 0, simply return
         if (Config.knockBack == 0.0) return
 
-        if (Config.debug)
+        if (Config.debug) {
             Config.log("Teleport cause: ${event.cause}")
+        }
 
         val newLoc = BorderCheckTask.checkPlayer(event.player, event.to, true, true)
         if (newLoc != null) {
@@ -34,8 +35,9 @@ class WBListener : Listener {
         if (Config.knockBack == 0.0 || !Config.portalRedirection) return
 
         val newLoc = BorderCheckTask.checkPlayer(event.player, event.to, true, false)
-        if (newLoc != null)
+        if (newLoc != null) {
             event.to = newLoc
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

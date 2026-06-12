@@ -2,10 +2,10 @@ package com.wimbli.WorldBorder.cmd
 
 import com.wimbli.WorldBorder.Config
 import com.wimbli.WorldBorder.CoordXZ
-import com.wimbli.WorldBorder.msg
 import com.wimbli.WorldBorder.Sched
 import com.wimbli.WorldBorder.WorldBorder
 import com.wimbli.WorldBorder.WorldTrimTask
+import com.wimbli.WorldBorder.msg
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -44,15 +44,17 @@ class CmdTrim : WBCmd() {
             val check = params[0].lowercase()
 
             if (check == "cancel" || check == "stop") {
-                if (!makeSureTrimIsRunning(sender))
+                if (!makeSureTrimIsRunning(sender)) {
                     return
+                }
                 sender.msg(C_HEAD + "Cancelling the world map trimming task.")
                 trimDefaults()
                 Config.stopTrimTask()
                 return
             } else if (check == "pause") {
-                if (!makeSureTrimIsRunning(sender))
+                if (!makeSureTrimIsRunning(sender)) {
                     return
+                }
                 Config.trimTask?.pause()
                 val isPaused = Config.trimTask?.isPaused() ?: false
                 sender.msg(C_HEAD + "The world map trimming task is now " + (if (isPaused) "" else "un") + "paused.")
@@ -64,9 +66,9 @@ class CmdTrim : WBCmd() {
 
         // if not just confirming, make sure a world name is available
         if (curWorld == null && !confirm) {
-            if (player != null)
+            if (player != null) {
                 curWorld = player.world.name
-            else {
+            } else {
                 sendErrorAndHelp(sender, "You must specify a world!")
                 return
             }
@@ -84,10 +86,12 @@ class CmdTrim : WBCmd() {
 
         // set frequency and/or padding if those were specified
         try {
-            if (params.size >= 1 && !confirm)
+            if (params.size >= 1 && !confirm) {
                 trimFrequency = Math.abs(params[0].toInt())
-            if (params.size >= 2 && !confirm)
+            }
+            if (params.size >= 2 && !confirm) {
                 trimPadding = Math.abs(params[1].toInt())
+            }
         } catch (ex: NumberFormatException) {
             sendErrorAndHelp(sender, "The frequency and padding values must be integers.")
             trimDefaults()
@@ -100,8 +104,9 @@ class CmdTrim : WBCmd() {
         }
 
         // set world if it was specified
-        if (curWorld != null)
+        if (curWorld != null) {
             trimWorld = curWorld
+        }
 
         if (confirm) {
             // command confirmed, go ahead with it
@@ -110,15 +115,17 @@ class CmdTrim : WBCmd() {
                 return
             }
 
-            if (player != null)
+            if (player != null) {
                 Config.log("Trimming world beyond border at the command of player \"" + player.name + "\".")
+            }
 
             var ticks = 1
             var repeats = 1
-            if (trimFrequency > 20)
+            if (trimFrequency > 20) {
                 repeats = trimFrequency / 20
-            else
+            } else {
                 ticks = 20 / trimFrequency
+            }
 
             Config.trimTask = WorldTrimTask(Bukkit.getServer(), player, trimWorld, trimPadding, repeats)
             val task = Config.trimTask!!
@@ -150,8 +157,9 @@ class CmdTrim : WBCmd() {
     }
 
     private fun makeSureTrimIsRunning(sender: CommandSender): Boolean {
-        if (Config.trimTask?.valid() == true)
+        if (Config.trimTask?.valid() == true) {
             return true
+        }
         sendErrorAndHelp(sender, "The world map trimming task is not currently running.")
         return false
     }

@@ -39,12 +39,14 @@ class BorderCheckTask : Runnable {
             val world = loc.world ?: return null
             val border = Config.border(world.name) ?: return null
 
-            if (border.insideBorder(loc.x, loc.z, Config.shapeRound))
+            if (border.insideBorder(loc.x, loc.z, Config.shapeRound)) {
                 return null
+            }
 
             // bypassing players are allowed beyond the border; also ignore players currently being handled
-            if (Config.isPlayerBypassing(player.uniqueId) || handlingPlayers.contains(player.name.lowercase()))
+            if (Config.isPlayerBypassing(player.uniqueId) || handlingPlayers.contains(player.name.lowercase())) {
                 return null
+            }
 
             // tag this player as being handled to avoid the teleport loop described above
             handlingPlayers.add(player.name.lowercase())
@@ -68,8 +70,9 @@ class BorderCheckTask : Runnable {
                     val vertOffset = if (ride is LivingEntity) 0.0 else ride.location.y - loc.y
                     val rideLoc = newLoc.clone()
                     rideLoc.y = newLoc.y + vertOffset
-                    if (Config.debug)
+                    if (Config.debug) {
                         Config.logWarn("Player was riding a \"$ride\".")
+                    }
 
                     ride.velocity = Vector(0, 0, 0)
                     ride.teleportAsync(rideLoc, TeleportCause.PLUGIN)
@@ -88,8 +91,9 @@ class BorderCheckTask : Runnable {
                 player.eject()
                 for (rider in passengers) {
                     rider.teleportAsync(newLoc, TeleportCause.PLUGIN)
-                    if (Config.debug)
+                    if (Config.debug) {
                         Config.logWarn("Player had a passenger riding on them: ${rider.type}")
+                    }
                 }
                 player.msg("Your passenger" + (if (passengers.size > 1) "s have" else " has") + " been ejected.")
             }
@@ -99,16 +103,18 @@ class BorderCheckTask : Runnable {
 
             if (returnLocationOnly) {
                 // WBListener path: it sets event.to itself, so just release the guard and return the location
-                if (!handlingVehicle)
+                if (!handlingVehicle) {
                     handlingPlayers.remove(player.name.lowercase())
+                }
                 return newLoc
             }
 
             // timer path: teleport asynchronously (Folia-safe) and release the guard once it completes
             val handledName = player.name.lowercase()
             player.teleportAsync(newLoc, TeleportCause.PLUGIN).thenRun {
-                if (!handlingVehicle)
+                if (!handlingVehicle) {
                     handlingPlayers.remove(handledName)
+                }
             }
             return null
         }
@@ -123,8 +129,9 @@ class BorderCheckTask : Runnable {
 
             // it's remotely possible (such as in the Nether) a suitable location isn't available, in which case...
             if (newLoc == null) {
-                if (Config.debug)
+                if (Config.debug) {
                     Config.logWarn("Target new location unviable, using spawn or killing player.")
+                }
                 if (Config.killPlayer) {
                     player.health = 0.0
                     return null
@@ -132,11 +139,13 @@ class BorderCheckTask : Runnable {
                 newLoc = player.world.spawnLocation
             }
 
-            if (Config.debug)
+            if (Config.debug) {
                 Config.logWarn("New position in world \"${newLoc.world.name}\" at X: ${Config.coord.format(newLoc.x)} Y: ${Config.coord.format(newLoc.y)} Z: ${Config.coord.format(newLoc.z)}")
+            }
 
-            if (notify)
+            if (notify) {
                 player.sendMessage(Config.messageComponent)
+            }
 
             return newLoc
         }

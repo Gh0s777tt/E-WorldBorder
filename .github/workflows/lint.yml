@@ -9,8 +9,7 @@ on:
 permissions:
   contents: read
 
-# Quality gates run as a separate, non-blocking job (continue-on-error) so they surface style/smell
-# feedback in the logs without turning the build red. Flip continue-on-error off to make them enforced.
+# ktlint formatting is enforced (blocking); detekt smell analysis is advisory (continue-on-error).
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -23,7 +22,6 @@ jobs:
           java-version: '21'
 
       - name: ktlint
-        continue-on-error: true
         run: |
           KTLINT_VERSION=1.5.0
           curl -sSLO "https://github.com/pinterest/ktlint/releases/download/${KTLINT_VERSION}/ktlint"

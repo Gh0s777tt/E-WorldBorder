@@ -13,11 +13,12 @@ object Sched {
     private val plugin get() = WorldBorder.plugin
 
     /** Repeating task on the global region (e.g. the border-check timer, fill/trim loops). */
-    fun runRepeating(initialDelayTicks: Long, periodTicks: Long, task: () -> Unit): ScheduledTask =
-        Bukkit.getGlobalRegionScheduler().runAtFixedRate(
-            plugin, { task() },
-            initialDelayTicks.coerceAtLeast(1L), periodTicks.coerceAtLeast(1L)
-        )
+    fun runRepeating(initialDelayTicks: Long, periodTicks: Long, task: () -> Unit): ScheduledTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(
+        plugin,
+        { task() },
+        initialDelayTicks.coerceAtLeast(1L),
+        periodTicks.coerceAtLeast(1L),
+    )
 
     /** Run once on the global region thread (next tick). */
     fun runGlobal(task: () -> Unit) {

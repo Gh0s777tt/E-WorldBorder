@@ -15,10 +15,11 @@ import java.util.Collections
 // http://mojang.com/2011/02/16/minecraft-save-file-format-in-beta-1-3/
 class WorldFileData private constructor(
     private val world: World,
-    private val notifyPlayer: Player?
+    private val notifyPlayer: Player?,
 ) {
     private var regionFolder: File? = null
     private var regionFiles: Array<File> = emptyArray()
+
     // region coordinates -> file, built once so region lookups are O(1) instead of a linear scan
     private var regionFileByCoord: Map<CoordXZ, File> = emptyMap()
     private val regionChunkExistence: MutableMap<CoordXZ, MutableList<Boolean>> =
@@ -103,8 +104,9 @@ class WorldFileData private constructor(
                     // https://github.com/PaperMC/Paper (Reduce-IO-ops-opening-a-new-region-file)
                     val header = ByteBuffer.allocate(8192)
                     while (header.hasRemaining()) {
-                        if (regionData.channel.read(header) == -1)
+                        if (regionData.channel.read(header) == -1) {
                             throw EOFException()
+                        }
                     }
                     header.clear()
                     val headerAsInts = header.asIntBuffer()
@@ -133,21 +135,20 @@ class WorldFileData private constructor(
     // send a message to the server console/log and possibly to an in-game player
     private fun sendMessage(text: String) {
         Config.log("[WorldData] $text")
-        if (notifyPlayer != null && notifyPlayer.isOnline)
+        if (notifyPlayer != null && notifyPlayer.isOnline) {
             notifyPlayer.msg("[WorldData] $text")
+        }
     }
 
     // file filter used for region files
     private class ExtFileFilter(extension: String) : FileFilter {
         private val ext: String = extension.lowercase()
-        override fun accept(file: File): Boolean =
-            file.exists() && file.isFile && file.name.lowercase().endsWith(ext)
+        override fun accept(file: File): Boolean = file.exists() && file.isFile && file.name.lowercase().endsWith(ext)
     }
 
     // file filter used for DIM* folders (nether, end, and custom world types)
     private class DimFolderFileFilter : FileFilter {
-        override fun accept(file: File): Boolean =
-            file.exists() && file.isDirectory && file.name.lowercase().startsWith("dim")
+        override fun accept(file: File): Boolean = file.exists() && file.isDirectory && file.name.lowercase().startsWith("dim")
     }
 
     companion object {

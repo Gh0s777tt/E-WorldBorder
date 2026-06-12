@@ -31,6 +31,7 @@ object UUIDFetcher {
 
     // name -> UUID; the modern Mojang endpoint returns the current profile (the old "?at=" form is gone)
     private const val UUID_URL = "https://api.mojang.com/users/profiles/minecraft/%s"
+
     // UUID -> current profile (name); replaces the removed /user/profiles/<uuid>/names endpoint
     private const val PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s"
 

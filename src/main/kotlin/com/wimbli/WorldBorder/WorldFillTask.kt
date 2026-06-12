@@ -17,7 +17,7 @@ class WorldFillTask(
     fillDistance: Int,
     chunksPerRun: Int,
     tickFrequency: Int,
-    forceLoad: Boolean = false
+    forceLoad: Boolean = false,
 ) : Runnable {
     // general task-related reference data
     private var server: Server? = server
@@ -99,8 +99,11 @@ class WorldFillTask(
         val srv = server
         val w = srv?.getWorld(worldName)
         if (srv == null || w == null) {
-            if (worldName.isEmpty()) sendMessage("You must specify a world!")
-            else sendMessage("World \"$worldName\" not found!")
+            if (worldName.isEmpty()) {
+                sendMessage("You must specify a world!")
+            } else {
+                sendMessage("World \"$worldName\" not found!")
+            }
             stop()
         } else {
             world = w
@@ -189,10 +192,11 @@ class WorldFillTask(
         // Next, check which chunks loaded as a dependency no longer need to be kept in memory.
         val newPreventUnload = HashSet<UnloadDependency>()
         for (dependency in preventUnload!!) {
-            if (worldData.doesChunkExist(dependency.forX, dependency.forZ))
+            if (worldData.doesChunkExist(dependency.forX, dependency.forZ)) {
                 chunksToUnload.add(CoordXZ(dependency.neededX, dependency.neededZ))
-            else
+            } else {
                 newPreventUnload.add(dependency)
+            }
         }
         preventUnload = newPreventUnload
 
@@ -210,8 +214,9 @@ class WorldFillTask(
         if (chunksProcessedLastTick > 0 || pendingChunks.isNotEmpty()) {
             // we generally queue 3 chunks, so real numbers are 1/3 of these
             val chunksExpectedToGetProcessed = (chunksProcessedLastTick - pendingChunks.size) / 3 + 3
-            if (chunksExpectedToGetProcessed < chunksToProcess)
+            if (chunksExpectedToGetProcessed < chunksToProcess) {
                 chunksToProcess = chunksExpectedToGetProcessed
+            }
         }
 
         for (loop in 0 until chunksToProcess) {
@@ -310,8 +315,11 @@ class WorldFillTask(
         lastChunk.z = z
 
         // move one chunk further in the appropriate direction
-        if (isZLeg) z += if (isNeg) -1 else 1
-        else x += if (isNeg) -1 else 1
+        if (isZLeg) {
+            z += if (isNeg) -1 else 1
+        } else {
+            x += if (isNeg) -1 else 1
+        }
 
         // if we've been around one full loop (4 legs)...
         if (isZLeg && isNeg && current == 0) {
@@ -382,10 +390,11 @@ class WorldFillTask(
     }
 
     fun pause(pause: Boolean) {
-        if (pausedForMemory && !pause)
+        if (pausedForMemory && !pause) {
             pausedForMemory = false
-        else
+        } else {
             paused = pause
+        }
         if (paused) {
             Config.storeFillTask()
             reportProgress()
@@ -446,8 +455,7 @@ class WorldFillTask(
     }
 
     /** Percentage completed for the fill task. */
-    fun getPercentageCompleted(): Double =
-        (reportTotal + reportNum).toDouble() / reportTarget.toDouble() * 100
+    fun getPercentageCompleted(): Double = (reportTotal + reportNum).toDouble() / reportTarget.toDouble() * 100
 
     /** Number of chunks processed so far. */
     fun getChunksCompleted(): Int = reportTotal
@@ -455,10 +463,8 @@ class WorldFillTask(
     /** Total number of chunks that need to be generated. */
     fun getChunksTotal(): Int = reportTarget
 
-    private fun loadChunkAsync(world: World, x: Int, z: Int, gen: Boolean): CompletableFuture<Void> {
-        return world.getChunkAtAsync(x, z, gen).thenAccept {
-            // hold a plugin chunk ticket so this chunk isn't unloaded while we still need it
-            world.addPluginChunkTicket(x, z, WorldBorder.plugin)
-        }
+    private fun loadChunkAsync(world: World, x: Int, z: Int, gen: Boolean): CompletableFuture<Void> = world.getChunkAtAsync(x, z, gen).thenAccept {
+        // hold a plugin chunk ticket so this chunk isn't unloaded while we still need it
+        world.addPluginChunkTicket(x, z, WorldBorder.plugin)
     }
 }

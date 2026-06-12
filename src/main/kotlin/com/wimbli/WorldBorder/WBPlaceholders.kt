@@ -18,7 +18,7 @@ class WBPlaceholders : PlaceholderExpansion() {
     override fun getIdentifier(): String = "worldborder"
     override fun getAuthor(): String = "Brettflan"
     override fun getVersion(): String = "2.0.0"
-    override fun persist(): Boolean = true   // keep registered across PlaceholderAPI reloads
+    override fun persist(): Boolean = true // keep registered across PlaceholderAPI reloads
 
     override fun onRequest(player: OfflinePlayer?, params: String): String? {
         val online = player as? Player
@@ -35,7 +35,7 @@ class WBPlaceholders : PlaceholderExpansion() {
             "centerz" -> border?.let { Config.coord.format(it.z) } ?: ""
             "shape" -> if (border == null) "" else Config.shapeName(border.shape ?: Config.shapeRound)
             "wrapping" -> border?.wrapping?.toString() ?: ""
-            else -> null   // null = unknown placeholder, lets PlaceholderAPI fall through
+            else -> null // null = unknown placeholder, lets PlaceholderAPI fall through
         }
     }
 }

@@ -21,7 +21,7 @@ class CmdDenypearl : WBCmd() {
     override fun cmdStatus(sender: CommandSender) {
         sender.msg(
             C_HEAD + "Direct cancellation of ender pearls thrown past the border is " +
-            enabledColored(Config.denyEnderpearl) + C_HEAD + "."
+                enabledColored(Config.denyEnderpearl) + C_HEAD + ".",
         )
     }
 

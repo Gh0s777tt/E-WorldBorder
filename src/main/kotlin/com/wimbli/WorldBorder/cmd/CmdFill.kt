@@ -41,8 +41,9 @@ class CmdFill : WBCmd() {
     }
 
     private fun makeSureFillIsRunning(sender: CommandSender): Boolean {
-        if (Config.fillTask?.valid() == true)
+        if (Config.fillTask?.valid() == true) {
             return true
+        }
         sendErrorAndHelp(sender, "The world map generation task is not currently running.")
         return false
     }
@@ -57,15 +58,17 @@ class CmdFill : WBCmd() {
             val check = params[0].lowercase()
 
             if (check == "cancel" || check == "stop") {
-                if (!makeSureFillIsRunning(sender))
+                if (!makeSureFillIsRunning(sender)) {
                     return
+                }
                 sender.msg(C_HEAD + "Cancelling the world map generation task.")
                 fillDefaults()
                 Config.stopFillTask()
                 return
             } else if (check == "pause") {
-                if (!makeSureFillIsRunning(sender))
+                if (!makeSureFillIsRunning(sender)) {
                     return
+                }
                 Config.fillTask?.pause()
                 val task = Config.fillTask
                 sender.msg(C_HEAD + "The world map generation task is now " + (if (task != null && task.isPaused()) "" else "un") + "paused.")
@@ -77,9 +80,9 @@ class CmdFill : WBCmd() {
 
         // if not just confirming, make sure a world name is available
         if (curWorld == null && !confirm) {
-            if (curPlayer != null)
+            if (curPlayer != null) {
                 curWorld = curPlayer.world.name
-            else {
+            } else {
                 sendErrorAndHelp(sender, "You must specify a world!")
                 return
             }
@@ -97,10 +100,12 @@ class CmdFill : WBCmd() {
 
         // set frequency and/or padding if those were specified
         try {
-            if (params.size >= 1 && !confirm)
+            if (params.size >= 1 && !confirm) {
                 fillFrequency = Math.abs(params[0].toInt())
-            if (params.size >= 2 && !confirm)
+            }
+            if (params.size >= 2 && !confirm) {
                 fillPadding = Math.abs(params[1].toInt())
+            }
         } catch (ex: NumberFormatException) {
             sendErrorAndHelp(sender, "The frequency and padding values must be integers.")
             fillDefaults()
@@ -113,12 +118,14 @@ class CmdFill : WBCmd() {
         }
 
         // see if the command specifies to load even chunks which should already be fully generated
-        if (params.size == 3)
+        if (params.size == 3) {
             fillForceLoad = strAsBool(params[2])
+        }
 
         // set world if it was specified
-        if (curWorld != null)
+        if (curWorld != null) {
             fillWorld = curWorld
+        }
 
         if (confirm) {
             // command confirmed, go ahead with it
@@ -127,15 +134,17 @@ class CmdFill : WBCmd() {
                 return
             }
 
-            if (curPlayer != null)
+            if (curPlayer != null) {
                 Config.log("Filling out world to border at the command of player \"${curPlayer.name}\".")
+            }
 
             var ticks = 1
             var repeats = 1
-            if (fillFrequency > 20)
+            if (fillFrequency > 20) {
                 repeats = fillFrequency / 20
-            else
+            } else {
                 ticks = 20 / fillFrequency
+            }
 
             Config.log("world: $fillWorld  padding: $fillPadding  repeats: $repeats  ticks: $ticks")
             Config.fillTask = WorldFillTask(Bukkit.getServer(), curPlayer, fillWorld, fillPadding, repeats, ticks, fillForceLoad)

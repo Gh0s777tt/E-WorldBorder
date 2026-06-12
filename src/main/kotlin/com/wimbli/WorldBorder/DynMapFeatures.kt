@@ -35,8 +35,9 @@ object DynMapFeatures {
         try {
             Class.forName("org.dynmap.markers.CircleMarker")
             // for version 0.35 of DynMap, CircleMarkers were bugged (center always 0,0)
-            if (dynmap.dynmapVersion.startsWith("0.35-"))
+            if (dynmap.dynmapVersion.startsWith("0.35-")) {
                 throw ClassNotFoundException()
+            }
         } catch (ex: ClassNotFoundException) {
             Config.logConfig("DynMap is available, but border display is currently disabled: you need DynMap v0.36 or newer.")
             return
@@ -139,7 +140,7 @@ object DynMapFeatures {
             val set = markSet ?: return
             val marker = set.createCircleMarker(
                 "worldborder_$worldName", Config.dynmapMessage, false, worldName,
-                border.x, y, border.z, border.radiusX.toDouble(), border.radiusZ.toDouble(), true
+                border.x, y, border.z, border.radiusX.toDouble(), border.radiusZ.toDouble(), true,
             ) ?: return
             marker.setLineStyle(lineWeight, lineOpacity, lineColor)
             marker.setFillStyle(0.0, 0x000000)
@@ -161,7 +162,13 @@ object DynMapFeatures {
         if (existing == null) {
             val set = markSet ?: return
             val marker = set.createAreaMarker(
-                "worldborder_$worldName", Config.dynmapMessage, false, worldName, xVals, zVals, true
+                "worldborder_$worldName",
+                Config.dynmapMessage,
+                false,
+                worldName,
+                xVals,
+                zVals,
+                true,
             ) ?: return
             marker.setLineStyle(3, 1.0, 0xFF0000)
             marker.setFillStyle(0.0, 0x000000)

@@ -26,16 +26,17 @@ class CmdShape : WBCmd() {
 
     override fun execute(sender: CommandSender, player: Player?, params: MutableList<String>, worldName: String?) {
         val shape = params[0].lowercase()
-        if (shape == "rectangular" || shape == "square")
+        if (shape == "rectangular" || shape == "square") {
             Config.setShape(false)
-        else if (shape == "elliptic" || shape == "round")
+        } else if (shape == "elliptic" || shape == "round") {
             Config.setShape(true)
-        else {
+        } else {
             sendErrorAndHelp(sender, "You must specify one of the 4 valid shape names below.")
             return
         }
 
-        if (player != null)
+        if (player != null) {
             cmdStatus(sender)
+        }
     }
 }

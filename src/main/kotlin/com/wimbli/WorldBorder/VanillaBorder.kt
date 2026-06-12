@@ -34,12 +34,13 @@ object VanillaBorder {
         wb.setCenter(border.x, border.z)
         // square bounding box of the (possibly elliptic/rectangular) plugin border
         val targetSize = min(2.0 * max(border.radiusX, border.radiusZ), MAX_SIZE)
-        if (animateSeconds > 0L)
+        if (animateSeconds > 0L) {
             wb.setSize(targetSize, animateSeconds)
-        else
+        } else {
             wb.size = targetSize
-        wb.damageAmount = 0.0      // visual only; the plugin handles enforcement
-        wb.warningDistance = 16    // show the red overlay when getting close
+        }
+        wb.damageAmount = 0.0 // visual only; the plugin handles enforcement
+        wb.warningDistance = 16 // show the red overlay when getting close
     }
 
     // reset a single world's vanilla border back to the default

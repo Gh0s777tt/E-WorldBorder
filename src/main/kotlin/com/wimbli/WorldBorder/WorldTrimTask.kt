@@ -16,7 +16,7 @@ class WorldTrimTask(
     private val notifyPlayer: Player?,
     worldName: String,
     trimDistance: Int,
-    private val chunksPerRun: Int
+    private val chunksPerRun: Int,
 ) : Runnable {
     // general task-related reference data
     private var server: Server? = server
@@ -28,10 +28,10 @@ class WorldTrimTask(
     private var scheduledTask: ScheduledTask? = null
 
     // values for which chunk in the current region we're at
-    private var currentRegion = -1            // region(file) we're at in regionFiles
-    private var regionX = 0                    // X location value of the current region
-    private var regionZ = 0                    // Z location value of the current region
-    private var currentChunk = 0              // chunk we've reached in the current region
+    private var currentRegion = -1 // region(file) we're at in regionFiles
+    private var regionX = 0 // X location value of the current region
+    private var regionZ = 0 // Z location value of the current region
+    private var currentChunk = 0 // chunk we've reached in the current region
     private var regionChunks: MutableList<CoordXZ> = ArrayList(1024)
     private var trimChunks: MutableList<CoordXZ> = ArrayList(1024)
     private var counter = 0
@@ -47,8 +47,11 @@ class WorldTrimTask(
         val srv = server
         val w = srv?.getWorld(worldName)
         if (srv == null || w == null) {
-            if (worldName.isEmpty()) sendMessage("You must specify a world!")
-            else sendMessage("World \"$worldName\" not found!")
+            if (worldName.isEmpty()) {
+                sendMessage("You must specify a world!")
+            } else {
+                sendMessage("World \"$worldName\" not found!")
+            }
             stop()
         } else {
             world = w
@@ -147,8 +150,9 @@ class WorldTrimTask(
 
             // check whether the chunk is inside the border, add it to the "trim" list if not
             val chunk = regionChunks[currentChunk]
-            if (!isChunkInsideBorder(chunk))
+            if (!isChunkInsideBorder(chunk)) {
                 trimChunks.add(chunk)
+            }
 
             currentChunk++
             counter++
@@ -243,8 +247,9 @@ class WorldTrimTask(
     private fun unloadChunks() {
         val world = this.world ?: return
         for (unload in trimChunks) {
-            if (world.isChunkLoaded(unload.x, unload.z))
+            if (world.isChunkLoaded(unload.x, unload.z)) {
                 world.unloadChunk(unload.x, unload.z, false)
+            }
         }
         counter += trimChunks.size
     }
@@ -253,8 +258,9 @@ class WorldTrimTask(
     private fun wipeChunks() {
         val regionFile = worldData!!.regionFile(currentRegion) ?: return
         if (!regionFile.canWrite()) {
-            if (!regionFile.setWritable(true))
+            if (!regionFile.setWritable(true)) {
                 throw RuntimeException()
+            }
 
             if (!regionFile.canWrite()) {
                 sendMessage("Error! region file is locked and can't be trimmed: ${regionFile.name}")
@@ -290,8 +296,7 @@ class WorldTrimTask(
         counter += trimChunks.size
     }
 
-    private fun isChunkInsideBorder(chunk: CoordXZ): Boolean =
-        border!!.insideBorder((CoordXZ.chunkToBlock(chunk.x) + 8).toDouble(), (CoordXZ.chunkToBlock(chunk.z) + 8).toDouble())
+    private fun isChunkInsideBorder(chunk: CoordXZ): Boolean = border!!.insideBorder((CoordXZ.chunkToBlock(chunk.x) + 8).toDouble(), (CoordXZ.chunkToBlock(chunk.z) + 8).toDouble())
 
     // for successful completion
     fun finish() {
@@ -314,8 +319,9 @@ class WorldTrimTask(
         server = null
 
         sendMessage("NOTICE: it is recommended that you restart your server after a Trim, to be on the safe side.")
-        if (DynMapFeatures.renderEnabled())
+        if (DynMapFeatures.renderEnabled()) {
             sendMessage("This is especially true with DynMap. You should also run a fullrender in DynMap for the trimmed world after restarting, so trimmed chunks are updated on the map.")
+        }
     }
 
     // is this task still valid/workable?

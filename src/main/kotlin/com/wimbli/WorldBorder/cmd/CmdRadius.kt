@@ -22,8 +22,9 @@ class CmdRadius : WBCmd() {
     override fun execute(sender: CommandSender, player: Player?, params: MutableList<String>, worldName: String?) {
         var curWorld = worldName
 
-        if (curWorld == null)
+        if (curWorld == null) {
             curWorld = player!!.world.name
+        }
 
         val border = Config.border(curWorld)
         if (border == null) {
@@ -62,7 +63,8 @@ class CmdRadius : WBCmd() {
 
         Config.setBorder(curWorld, radiusX, radiusZ, x, z)
 
-        if (player != null)
+        if (player != null) {
             sender.msg("Radius has been set. " + Config.borderDescription(curWorld))
+        }
     }
 }

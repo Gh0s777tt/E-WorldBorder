@@ -20,8 +20,8 @@ class UUIDTypeAdapter : TypeAdapter<UUID>() {
         fun fromString(input: String): UUID = UUID.fromString(
             input.replaceFirst(
                 Regex("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})"),
-                "$1-$2-$3-$4-$5"
-            )
+                "$1-$2-$3-$4-$5",
+            ),
         )
     }
 }

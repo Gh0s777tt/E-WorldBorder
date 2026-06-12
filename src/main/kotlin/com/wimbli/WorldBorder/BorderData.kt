@@ -104,8 +104,9 @@ class BorderData {
         val isRound = shape ?: round
 
         // square border
-        if (!isRound)
+        if (!isRound) {
             return !(xLoc < minX || xLoc > maxX || zLoc < minZ || zLoc > maxZ)
+        }
 
         // round border
         // elegant round border checking algorithm is from rBorder by Reil, all credit to him for it
@@ -113,10 +114,10 @@ class BorderData {
         val zDist = abs(z - zLoc)
 
         return when {
-            xDist < definiteRectangleX && zDist < definiteRectangleZ -> true   // definitely inside
-            xDist >= radiusX || zDist >= radiusZ -> false                      // definitely outside
+            xDist < definiteRectangleX && zDist < definiteRectangleZ -> true // definitely inside
+            xDist >= radiusX || zDist >= radiusZ -> false // definitely outside
             xDist * xDist + zDist * zDist * radiusSquaredQuotient < radiusXSquared -> true // after further calc, inside
-            else -> false                                                      // apparently outside
+            else -> false // apparently outside
         }
     }
 
@@ -138,11 +139,27 @@ class BorderData {
         // square border
         if (!isRound) {
             if (wrapping) {
-                if (xLoc <= minX) xLoc = maxX - knockBack else if (xLoc >= maxX) xLoc = minX + knockBack
-                if (zLoc <= minZ) zLoc = maxZ - knockBack else if (zLoc >= maxZ) zLoc = minZ + knockBack
+                if (xLoc <= minX) {
+                    xLoc = maxX - knockBack
+                } else if (xLoc >= maxX) {
+                    xLoc = minX + knockBack
+                }
+                if (zLoc <= minZ) {
+                    zLoc = maxZ - knockBack
+                } else if (zLoc >= maxZ) {
+                    zLoc = minZ + knockBack
+                }
             } else {
-                if (xLoc <= minX) xLoc = minX + knockBack else if (xLoc >= maxX) xLoc = maxX - knockBack
-                if (zLoc <= minZ) zLoc = minZ + knockBack else if (zLoc >= maxZ) zLoc = maxZ - knockBack
+                if (xLoc <= minX) {
+                    xLoc = minX + knockBack
+                } else if (xLoc >= maxX) {
+                    xLoc = maxX - knockBack
+                }
+                if (zLoc <= minZ) {
+                    zLoc = minZ + knockBack
+                } else if (zLoc >= maxZ) {
+                    zLoc = maxZ - knockBack
+                }
             }
         }
         // round border
@@ -151,9 +168,9 @@ class BorderData {
             // Transform the ellipse to a circle with radius 1 (transform the point the same way).
             val dX = xLoc - x
             val dZ = zLoc - z
-            val dU = sqrt(dX * dX + dZ * dZ)                                  // distance of the untransformed point from the center
+            val dU = sqrt(dX * dX + dZ * dZ) // distance of the untransformed point from the center
             val dT = sqrt(dX * dX / radiusXSquared + dZ * dZ / radiusZSquared) // distance of the transformed point from the center
-            val f = (1 / dT - knockBack / dU)                                // "correction" factor for the distances
+            val f = (1 / dT - knockBack / dU) // "correction" factor for the distances
             if (wrapping) {
                 xLoc = x - dX * f
                 zLoc = z - dZ * f
@@ -178,13 +195,15 @@ class BorderData {
 
     // Check if a particular spot consists of 2 breathable blocks over something relatively solid.
     private fun isSafeSpot(world: World, x: Int, y: Int, z: Int, flying: Boolean): Boolean {
-        val safe = isSafeOpenBlock(world.getBlockAt(x, y, z))            // target block open and safe
-            && isSafeOpenBlock(world.getBlockAt(x, y + 1, z))           // above target block open and safe
+        val safe = isSafeOpenBlock(world.getBlockAt(x, y, z)) &&
+            // target block open and safe
+            isSafeOpenBlock(world.getBlockAt(x, y + 1, z)) // above target block open and safe
         if (!safe || flying) return safe
 
         val below = world.getBlockAt(x, y - 1, z)
-        return (!below.isPassable || below.type == Material.WATER)      // below not passable (so solid), or is water
-            && !painfulBlocks.contains(below.type)                     // and not painful to land on
+        return (!below.isPassable || below.type == Material.WATER) &&
+            // below not passable (so solid), or is water
+            !painfulBlocks.contains(below.type) // and not painful to land on
     }
 
     // find closest safe Y position from the starting position
@@ -199,8 +218,9 @@ class BorderData {
         var y = yStart
 
         // if Y is larger than the world can be and the player can fly, return Y - unless we're in the Nether (no roof)
-        if (flying && y > limTop && !isNether)
+        if (flying && y > limTop && !isNether) {
             return y.toDouble()
+        }
 
         // make sure Y values are within the boundaries of the world
         if (y > limTop) {
@@ -213,19 +233,22 @@ class BorderData {
         if (y < limBot) y = limBot
 
         // for non-Nether non-flying we only need to check up to highestBlockBoundary
-        if (!isNether && !flying)
+        if (!isNether && !flying) {
             limTop = highestBlockBoundary
+        }
 
         // Expanding Y search method adapted from Acru's code in the Nether plugin
         var y1 = y
         var y2 = y
         while (y1 > limBot || y2 < limTop) {
             // Look below.
-            if (y1 > limBot && isSafeSpot(world, x, y1, z, flying))
+            if (y1 > limBot && isSafeSpot(world, x, y1, z, flying)) {
                 return y1.toDouble()
+            }
             // Look above.
-            if (y2 < limTop && y2 != y1 && isSafeSpot(world, x, y2, z, flying))
+            if (y2 < limTop && y2 != y1 && isSafeSpot(world, x, y2, z, flying)) {
                 return y2.toDouble()
+            }
             y1--
             y2++
         }
@@ -240,23 +263,24 @@ class BorderData {
         return other.x == x && other.z == z && other.radiusX == radiusX && other.radiusZ == radiusZ
     }
 
-    override fun hashCode(): Int =
-        ((x * 10).toInt() shl 4) + z.toInt() + (radiusX shl 2) + (radiusZ shl 3)
+    override fun hashCode(): Int = ((x * 10).toInt() shl 4) + z.toInt() + (radiusX shl 2) + (radiusZ shl 3)
 
     companion object {
         // Blocks we never want to drop a player onto (or stand in), like lava/fire/cactus/etc.
         // Modernized for 1.21: includes hazards that didn't exist when the original list was written.
-        private val painfulBlocks: EnumSet<Material> = EnumSet.of(
-            Material.LAVA,
-            Material.FIRE,
-            Material.SOUL_FIRE,
-            Material.CACTUS,
-            Material.MAGMA_BLOCK,
-            Material.END_PORTAL,
-            Material.POWDER_SNOW,
-            Material.WITHER_ROSE,
-            Material.SWEET_BERRY_BUSH
-        )
+        private val painfulBlocks: EnumSet<Material> by lazy {
+            EnumSet.of(
+                Material.LAVA,
+                Material.FIRE,
+                Material.SOUL_FIRE,
+                Material.CACTUS,
+                Material.MAGMA_BLOCK,
+                Material.END_PORTAL,
+                Material.POWDER_SNOW,
+                Material.WITHER_ROSE,
+                Material.SWEET_BERRY_BUSH,
+            )
+        }
 
         /**
          * Version-proof replacement for the old hand-maintained "safe open blocks" enum list:
@@ -264,7 +288,6 @@ class BorderData {
          * Using Block.isPassable() means new passable blocks in future MC versions are handled
          * automatically instead of needing the list updated by hand.
          */
-        private fun isSafeOpenBlock(block: Block): Boolean =
-            block.isPassable && !painfulBlocks.contains(block.type)
+        private fun isSafeOpenBlock(block: Block): Boolean = block.isPassable && !painfulBlocks.contains(block.type)
     }
 }

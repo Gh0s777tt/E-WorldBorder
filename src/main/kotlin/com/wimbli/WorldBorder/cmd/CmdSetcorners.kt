@@ -26,8 +26,9 @@ class CmdSetcorners : WBCmd() {
             curWorld = player!!.world.name
         } else {
             val worldTest = sender.server.getWorld(curWorld)
-            if (worldTest == null)
+            if (worldTest == null) {
                 sender.msg("The world you specified (\"$curWorld\") could not be found on the server, but data for it will be stored anyway.")
+            }
         }
 
         try {
@@ -41,7 +42,8 @@ class CmdSetcorners : WBCmd() {
             return
         }
 
-        if (player != null)
+        if (player != null) {
             sender.msg("Border has been set. " + Config.borderDescription(curWorld!!))
+        }
     }
 }

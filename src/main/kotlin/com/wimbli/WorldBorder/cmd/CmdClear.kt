@@ -32,8 +32,9 @@ class CmdClear : WBCmd() {
 
             Config.removeAllBorders()
 
-            if (player != null)
+            if (player != null) {
                 sender.msg("All borders have been cleared for all worlds.")
+            }
             return
         }
 
@@ -53,7 +54,8 @@ class CmdClear : WBCmd() {
 
         Config.removeBorder(curWorld)
 
-        if (player != null)
+        if (player != null) {
             sender.msg("Border cleared for world \"$curWorld\".")
+        }
     }
 }

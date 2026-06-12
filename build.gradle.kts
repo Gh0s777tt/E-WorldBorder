@@ -41,6 +41,11 @@ dependencies {
 
     // Kotlin stdlib is added automatically by the kotlin("jvm") plugin and
     // is shaded into the final jar (see shadowJar relocation below).
+
+    // Unit tests (the Bukkit/Adventure API is provided on the test classpath here so BorderData loads)
+    testImplementation("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 // The kotlin("jvm") plugin also applies the Java plugin; keep its (no-op) compileJava task on the same
@@ -59,6 +64,10 @@ kotlin {
 }
 
 tasks {
+    test {
+        useJUnitPlatform()
+    }
+
     processResources {
         // Inject the project version into plugin.yml at build time
         val props = mapOf("version" to project.version.toString())

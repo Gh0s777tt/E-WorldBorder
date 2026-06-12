@@ -5,12 +5,12 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 // ----- color values as legacy section (§) codes; deserialized to Adventure Components on send -----
-const val C_CMD: String = "§b"   // aqua        - main commands
-const val C_DESC: String = "§f"  // white       - command descriptions
-const val C_ERR: String = "§c"   // red         - errors / notices
-const val C_HEAD: String = "§e"  // yellow      - command listing header
-const val C_OPT: String = "§2"   // dark green  - optional values
-const val C_REQ: String = "§a"   // green       - required values
+const val C_CMD: String = "§b" // aqua        - main commands
+const val C_DESC: String = "§f" // white       - command descriptions
+const val C_ERR: String = "§c" // red         - errors / notices
+const val C_HEAD: String = "§e" // yellow      - command listing header
+const val C_OPT: String = "§2" // dark green  - optional values
+const val C_REQ: String = "§a" // green       - required values
 
 private const val UNDERLINE = "§n"
 private const val RESET = "§r"
@@ -30,14 +30,17 @@ abstract class WBCmd {
 
     // command name and command permission; normally the same thing
     @JvmField var name: String = ""
+
     @JvmField var permission: String? = null
 
     // whether the command can accept a world name before itself
     @JvmField var hasWorldNameInput: Boolean = false
+
     @JvmField var consoleRequiresWorldName: Boolean = true
 
     // minimum and maximum number of accepted parameters
     @JvmField var minParams: Int = 0
+
     @JvmField var maxParams: Int = 9999
 
     // help/explanation text shown after the command example(s)
@@ -104,8 +107,9 @@ abstract class WBCmd {
             sender.msg(example)
         }
         cmdStatus(sender)
-        if (!helpText.isNullOrEmpty())
+        if (!helpText.isNullOrEmpty()) {
             sender.msg(C_DESC + helpText)
+        }
     }
 
     // send an error message followed by command example message(s)

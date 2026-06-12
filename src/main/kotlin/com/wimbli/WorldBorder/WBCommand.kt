@@ -43,6 +43,7 @@ import java.util.TreeSet
 class WBCommand : CommandExecutor {
     // map of all sub-commands, keyed by command name for quick reference
     val subCommands: MutableMap<String, WBCmd> = LinkedHashMap()
+
     // commands which can have a world name in front of the command itself (ex. /wb _world_ radius 100)
     private val subCommandsWithWorldNames: MutableSet<String> = LinkedHashSet()
 
@@ -83,8 +84,9 @@ class WBCommand : CommandExecutor {
 
     private fun addCmd(cmd: WBCmd) {
         subCommands[cmd.name] = cmd
-        if (cmd.hasWorldNameInput)
+        if (cmd.hasWorldNameInput) {
             subCommandsWithWorldNames.add(cmd.name)
+        }
     }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, split: Array<out String>): Boolean {
@@ -95,20 +97,23 @@ class WBCommand : CommandExecutor {
 
         var worldName: String? = null
         // is the second parameter the command and the first a world name? definitely a world name if it was quoted
-        if (wasWorldQuotation || (params.size > 1 && !subCommands.containsKey(params[0]) && subCommandsWithWorldNames.contains(params[1])))
+        if (wasWorldQuotation || (params.size > 1 && !subCommands.containsKey(params[0]) && subCommandsWithWorldNames.contains(params[1]))) {
             worldName = params[0]
+        }
 
         // no command specified? show command examples / help
-        if (params.isEmpty())
+        if (params.isEmpty()) {
             params.add(0, "commands")
+        }
 
         // determine the command name
         var cmdName = if (worldName == null) params[0].lowercase() else params[1].lowercase()
 
         // remove command name and (if present) world name from the front of the param list
         params.removeAt(0)
-        if (worldName != null)
+        if (worldName != null) {
             params.removeAt(0)
+        }
 
         // make sure the command is recognized; default to showing command examples / help if not, also check for a page number
         if (!subCommands.containsKey(cmdName)) {
@@ -125,8 +130,9 @@ class WBCommand : CommandExecutor {
         val subCommand = subCommands[cmdName]!!
 
         // check permission
-        if (!Config.hasPermission(player, subCommand.permission ?: subCommand.name))
+        if (!Config.hasPermission(player, subCommand.permission ?: subCommand.name)) {
             return true
+        }
 
         // if the command requires a world name when run by console, make sure that's in place
         if (player == null && subCommand.hasWorldNameInput && subCommand.consoleRequiresWorldName && worldName == null) {
@@ -137,10 +143,11 @@ class WBCommand : CommandExecutor {
 
         // make sure a valid number of parameters has been provided
         if (params.size < subCommand.minParams || params.size > subCommand.maxParams) {
-            if (subCommand.maxParams == 0)
+            if (subCommand.maxParams == 0) {
                 sender.sendMessage(C_ERR + "This command does not accept any parameters.")
-            else
+            } else {
                 sender.sendMessage(C_ERR + "You have not provided a valid number of parameters.")
+            }
             subCommand.sendCmdHelp(sender)
             return true
         }
@@ -169,8 +176,9 @@ class WBCommand : CommandExecutor {
 
         if (args[startIndex].endsWith("\"")) {
             args[startIndex] = args[startIndex].substring(1, args[startIndex].length - 1)
-            if (startIndex == 0)
+            if (startIndex == 0) {
                 wasWorldQuotation = true
+            }
         } else {
             val concat = ArrayList(args)
             val concatI = concat.iterator()
@@ -189,8 +197,9 @@ class WBCommand : CommandExecutor {
                 if (next.endsWith("\"")) {
                     concat[startIndex] = quote.substring(1, quote.length - 1)
                     args = concat
-                    if (startIndex == 0)
+                    if (startIndex == 0) {
                         wasWorldQuotation = true
+                    }
                     break
                 }
             }
