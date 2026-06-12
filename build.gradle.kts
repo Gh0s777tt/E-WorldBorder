@@ -34,7 +34,7 @@ dependencies {
     }
 
     // Optional soft-dependency: PlaceholderAPI. Only referenced at runtime when the server has it installed.
-    compileOnly("me.clip:placeholderapi:2.11.6")
+    compileOnly("me.clip:placeholderapi:2.12.2")
 
     // bStats metrics — shaded into the jar and relocated (bStats refuses to start unless relocated).
     implementation("org.bstats:bstats-bukkit:3.1.0")
