@@ -37,7 +37,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
 
     // bStats metrics — shaded into the jar and relocated (bStats refuses to start unless relocated).
-    implementation("org.bstats:bstats-bukkit:3.1.0")
+    implementation("org.bstats:bstats-bukkit:3.2.1")
 
     // Kotlin stdlib is added automatically by the kotlin("jvm") plugin and
     // is shaded into the final jar (see shadowJar relocation below).
