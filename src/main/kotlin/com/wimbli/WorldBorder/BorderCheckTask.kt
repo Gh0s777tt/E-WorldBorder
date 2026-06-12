@@ -128,7 +128,7 @@ class BorderCheckTask : Runnable {
                 Config.logWarn("New position in world \"${newLoc.world.name}\" at X: ${Config.coord.format(newLoc.x)} Y: ${Config.coord.format(newLoc.y)} Z: ${Config.coord.format(newLoc.z)}")
 
             if (notify)
-                player.msg(Config.message)
+                player.sendMessage(Config.messageComponent)
 
             return newLoc
         }

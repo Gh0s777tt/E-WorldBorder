@@ -6,6 +6,7 @@ api-version: '1.21'
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:
   - dynmap
+  - PlaceholderAPI
 commands:
   wborder:
     description: Primary command for WorldBorder.

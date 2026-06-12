@@ -1,5 +1,7 @@
 package com.wimbli.WorldBorder
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Location
@@ -42,8 +44,9 @@ object Config {
     private val borders: MutableMap<String, BorderData> = Collections.synchronizedMap(LinkedHashMap())
     private val bypassPlayers: MutableSet<UUID> = Collections.synchronizedSet(LinkedHashSet())
 
-    private var msgRaw = ""    // raw message without color code formatting
-    private var msgFmt = ""    // message with color code formatting applied
+    private var msgRaw = ""                                  // raw configured message (legacy & codes or MiniMessage)
+    private var msgComponent: Component = Component.empty()  // parsed Adventure component (what players receive)
+    private var msgFmt = ""    // message rendered to legacy section codes (for any string consumers)
     private var msgClean = ""  // message cleaned of formatting codes
 
     var debug = false
@@ -79,8 +82,11 @@ object Config {
         private set
     var vanillaBorder = false
         private set
+    var bstatsPluginId = 0
+        private set
 
     val message: String get() = msgFmt
+    val messageComponent: Component get() = msgComponent
     val messageRaw: String get() = msgRaw
     val messageClean: String get() = msgClean
 
@@ -95,7 +101,7 @@ object Config {
             log("Border set. ${borderDescription(world)}")
         save(true)
         DynMapFeatures.showBorder(world, border)
-        VanillaBorder.apply(world, border)
+        VanillaBorder.apply(world, border, animateSeconds = 3L) // smooth client-side resize on user changes
     }
 
     fun setBorder(world: String, radiusX: Int, radiusZ: Int, x: Double, z: Double, shape: Boolean?) {
@@ -175,9 +181,18 @@ object Config {
 
     fun updateMessage(msg: String) {
         msgRaw = msg
-        msgFmt = replaceAmpColors(msg)
-        msgClean = stripAmpColors(msg)
+        msgComponent = parseMessage(msg)
+        msgFmt = LegacyComponentSerializer.legacySection().serialize(msgComponent)
+        msgClean = PlainTextComponentSerializer.plainText().serialize(msgComponent)
     }
+
+    // Parse the configured message: MiniMessage if it contains tags (gradients/hover/click),
+    // otherwise legacy '&' color codes, for backwards compatibility with existing configs.
+    private fun parseMessage(msg: String): Component =
+        if (msg.contains('<') && msg.contains('>'))
+            MiniMessage.miniMessage().deserialize(msg)
+        else
+            LegacyComponentSerializer.legacyAmpersand().deserialize(msg)
 
     // ----- shape -----
 
@@ -456,6 +471,7 @@ object Config {
         preventBlockPlace = c.getBoolean("prevent-block-place")
         preventMobSpawn = c.getBoolean("prevent-mob-spawn")
         vanillaBorder = c.getBoolean("vanilla-border", false)
+        bstatsPluginId = c.getInt("bstats-plugin-id", 0)
 
         startBorderTimer()
 
@@ -558,6 +574,7 @@ object Config {
         c.set("prevent-block-place", preventBlockPlace)
         c.set("prevent-mob-spawn", preventMobSpawn)
         c.set("vanilla-border", vanillaBorder)
+        c.set("bstats-plugin-id", bstatsPluginId)
 
         c.set("worlds", null)
         // snapshot under lock to avoid ConcurrentModificationException with async tasks

@@ -16,6 +16,9 @@ repositories {
     maven("https://repo.mikeprimm.com/") {
         name = "dynmap"
     }
+    maven("https://repo.extendedclip.com/releases/") {
+        name = "placeholderapi"
+    }
 }
 
 dependencies {
@@ -29,6 +32,12 @@ dependencies {
     compileOnly("us.dynmap:dynmap-api:2.5") {
         isTransitive = false
     }
+
+    // Optional soft-dependency: PlaceholderAPI. Only referenced at runtime when the server has it installed.
+    compileOnly("me.clip:placeholderapi:2.11.6")
+
+    // bStats metrics — shaded into the jar and relocated (bStats refuses to start unless relocated).
+    implementation("org.bstats:bstats-bukkit:3.1.0")
 
     // Kotlin stdlib is added automatically by the kotlin("jvm") plugin and
     // is shaded into the final jar (see shadowJar relocation below).
@@ -65,6 +74,7 @@ tasks {
         // Relocate the bundled Kotlin stdlib so this plugin never clashes with
         // another Kotlin plugin shipping a different stdlib version.
         relocate("kotlin", "com.wimbli.WorldBorder.libs.kotlin")
+        relocate("org.bstats", "com.wimbli.WorldBorder.libs.bstats")
         mergeServiceFiles()
     }
 

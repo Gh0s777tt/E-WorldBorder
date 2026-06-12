@@ -19,7 +19,7 @@ class CmdGetmsg : WBCmd() {
     override fun execute(sender: CommandSender, player: Player?, params: MutableList<String>, worldName: String?) {
         sender.msg("Border message is currently set to:")
         sender.msg(Config.messageRaw)
-        sender.msg("Formatted border message:")
-        sender.msg(Config.message)
+        sender.msg("Rendered preview:")
+        sender.sendMessage(Config.messageComponent)
     }
 }

@@ -1,5 +1,8 @@
 package com.wimbli.WorldBorder
 
+import org.bstats.bukkit.Metrics
+import org.bstats.charts.SimplePie
+import org.bstats.charts.SingleLineChart
 import org.bukkit.plugin.java.JavaPlugin
 
 class WorldBorder : JavaPlugin() {
@@ -35,6 +38,19 @@ class WorldBorder : JavaPlugin() {
 
         // sync Minecraft's built-in (client-side) world borders, if that feature is enabled
         VanillaBorder.applyAll()
+
+        // bStats metrics — opt-in: set "bstats-plugin-id" in config.yml to your id from https://bstats.org
+        if (Config.bstatsPluginId > 0) {
+            val metrics = Metrics(this, Config.bstatsPluginId)
+            metrics.addCustomChart(SingleLineChart("borders") { Config.getBorders().size })
+            metrics.addCustomChart(SimplePie("default_shape") { Config.shapeName() })
+        }
+
+        // PlaceholderAPI integration, only when it's installed
+        if (server.pluginManager.getPlugin("PlaceholderAPI") != null) {
+            WBPlaceholders().register()
+            Config.log("Hooked into PlaceholderAPI.")
+        }
 
         // log the main world's spawn location for reference
         val spawn = server.worlds[0].spawnLocation

@@ -24,14 +24,20 @@ object VanillaBorder {
         }
     }
 
-    // mirror a plugin border onto the world's vanilla border (no-op if the feature is disabled)
-    fun apply(worldName: String, border: BorderData) {
+    // mirror a plugin border onto the world's vanilla border (no-op if the feature is disabled).
+    // animateSeconds > 0 makes the client smoothly grow/shrink to the new size (used on user changes).
+    @JvmOverloads
+    fun apply(worldName: String, border: BorderData, animateSeconds: Long = 0L) {
         if (!Config.vanillaBorder) return
         val world = Bukkit.getWorld(worldName) ?: return
         val wb = world.worldBorder
         wb.setCenter(border.x, border.z)
         // square bounding box of the (possibly elliptic/rectangular) plugin border
-        wb.size = min(2.0 * max(border.radiusX, border.radiusZ), MAX_SIZE)
+        val targetSize = min(2.0 * max(border.radiusX, border.radiusZ), MAX_SIZE)
+        if (animateSeconds > 0L)
+            wb.setSize(targetSize, animateSeconds)
+        else
+            wb.size = targetSize
         wb.damageAmount = 0.0      // visual only; the plugin handles enforcement
         wb.warningDistance = 16    // show the red overlay when getting close
     }
