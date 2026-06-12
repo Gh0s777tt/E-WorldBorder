@@ -16,7 +16,10 @@ class WorldBorder : JavaPlugin() {
         Config.load(this, false)
 
         // our one real command, with aliases "wb" and "worldborder"
-        getCommand("wborder")?.setExecutor(wbCommand)
+        getCommand("wborder")?.let {
+            it.setExecutor(wbCommand)
+            it.tabCompleter = WBTabCompleter()
+        }
 
         // keep an eye on teleports, to redirect them to a spot inside the border if necessary
         server.pluginManager.registerEvents(WBListener(), this)

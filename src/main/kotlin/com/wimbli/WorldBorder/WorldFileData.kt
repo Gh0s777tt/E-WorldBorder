@@ -19,6 +19,8 @@ class WorldFileData private constructor(
 ) {
     private var regionFolder: File? = null
     private var regionFiles: Array<File> = emptyArray()
+    // region coordinates -> file, built once so region lookups are O(1) instead of a linear scan
+    private var regionFileByCoord: Map<CoordXZ, File> = emptyMap()
     private val regionChunkExistence: MutableMap<CoordXZ, MutableList<Boolean>> =
         Collections.synchronizedMap(HashMap())
 
@@ -93,13 +95,10 @@ class WorldFileData private constructor(
         val data = ArrayList<Boolean>(1024)
         for (i in 0 until 1024) data.add(false)
 
-        for (i in regionFiles.indices) {
-            val coord = regionFileCoordinates(i)
-            // is this the region file we're looking for?
-            if (coord != region) continue
-
+        val regionFile = regionFileByCoord[region]
+        if (regionFile != null) {
             try {
-                RandomAccessFile(this.regionFile(i), "r").use { regionData ->
+                RandomAccessFile(regionFile, "r").use { regionData ->
                     // ByteBuffer+IntBuffer header reading for performance, as suggested by aikar:
                     // https://github.com/PaperMC/Paper (Reduce-IO-ops-opening-a-new-region-file)
                     val header = ByteBuffer.allocate(8192)
@@ -122,9 +121,9 @@ class WorldFileData private constructor(
                     }
                 }
             } catch (ex: FileNotFoundException) {
-                sendMessage("Error! Could not open region file to find generated chunks: ${this.regionFile(i)?.name}")
+                sendMessage("Error! Could not open region file to find generated chunks: ${regionFile.name}")
             } catch (ex: IOException) {
-                sendMessage("Error! Could not read region file to find generated chunks: ${this.regionFile(i)?.name}")
+                sendMessage("Error! Could not read region file to find generated chunks: ${regionFile.name}")
             }
         }
         regionChunkExistence[region] = data
@@ -185,6 +184,13 @@ class WorldFileData private constructor(
                 }
             }
             data.regionFiles = files
+
+            // index region files by their parsed coordinates so getRegionData() is O(1)
+            val byCoord = HashMap<CoordXZ, File>(files.size * 2)
+            for (i in files.indices) {
+                data.regionFileCoordinates(i)?.let { byCoord[it] = files[i] }
+            }
+            data.regionFileByCoord = byCoord
 
             return data
         }

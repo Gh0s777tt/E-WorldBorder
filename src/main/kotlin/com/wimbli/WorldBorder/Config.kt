@@ -21,8 +21,10 @@ object Config {
     private var cfg: FileConfiguration? = null
     private lateinit var wbLog: Logger
 
-    @JvmField
-    val coord = DecimalFormat("0.0")
+    // DecimalFormat is not thread-safe and coord.format() is called from the async Fill/Trim threads
+    // as well as the main thread, so back it per-thread. Call sites (Config.coord.format(x)) are unchanged.
+    private val coordTL: ThreadLocal<DecimalFormat> = ThreadLocal.withInitial { DecimalFormat("0.0") }
+    val coord: DecimalFormat get() = coordTL.get()
 
     private var borderTask = -1
     private val rt = Runtime.getRuntime()
