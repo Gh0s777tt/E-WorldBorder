@@ -2,6 +2,7 @@ package com.wimbli.WorldBorder
 
 import com.wimbli.WorldBorder.Events.WorldBorderTrimFinishedEvent
 import com.wimbli.WorldBorder.Events.WorldBorderTrimStartEvent
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import org.bukkit.Bukkit
 import org.bukkit.Server
 import org.bukkit.World
@@ -24,7 +25,7 @@ class WorldTrimTask(
     private var border: BorderData? = null
     private var readyToGo = false
     private var paused = false
-    private var taskID = -1
+    private var scheduledTask: ScheduledTask? = null
 
     // values for which chunk in the current region we're at
     private var currentRegion = -1            // region(file) we're at in regionFiles
@@ -80,8 +81,8 @@ class WorldTrimTask(
         }
     }
 
-    fun setTaskID(id: Int) {
-        this.taskID = id
+    fun setTask(task: ScheduledTask) {
+        this.scheduledTask = task
     }
 
     override fun run() {
@@ -309,8 +310,7 @@ class WorldTrimTask(
         if (server == null) return
 
         readyToGo = false
-        if (taskID != -1)
-            server!!.scheduler.cancelTask(taskID)
+        scheduledTask?.cancel()
         server = null
 
         sendMessage("NOTICE: it is recommended that you restart your server after a Trim, to be on the safe side.")

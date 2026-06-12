@@ -3,6 +3,7 @@ author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds. Kotlin rewrite for Paper 1.21.
 version: '${version}'
 api-version: '1.21'
+folia-supported: true
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:
   - dynmap

@@ -1,5 +1,6 @@
 package com.wimbli.WorldBorder
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
@@ -28,7 +29,7 @@ object Config {
     private val coordTL: ThreadLocal<DecimalFormat> = ThreadLocal.withInitial { DecimalFormat("0.0") }
     val coord: DecimalFormat get() = coordTL.get()
 
-    private var borderTask = -1
+    private var borderTask: ScheduledTask? = null
     private val rt = Runtime.getRuntime()
 
     @Volatile
@@ -344,26 +345,24 @@ object Config {
     // ----- border-checking timer -----
 
     fun isBorderTimerRunning(): Boolean {
-        if (borderTask == -1) return false
-        return plugin.server.scheduler.isQueued(borderTask) || plugin.server.scheduler.isCurrentlyRunning(borderTask)
+        val t = borderTask ?: return false
+        return !t.isCancelled
     }
 
     fun startBorderTimer() {
         stopBorderTimer(false)
 
-        borderTask = plugin.server.scheduler.scheduleSyncRepeatingTask(plugin, BorderCheckTask(), timerTicks.toLong(), timerTicks.toLong())
-
-        if (borderTask == -1)
-            logWarn("Failed to start timed border-checking task! This will prevent the plugin from working. Try restarting the server.")
+        val checker = BorderCheckTask()
+        borderTask = Sched.runRepeating(timerTicks.toLong(), timerTicks.toLong()) { checker.run() }
 
         logConfig("Border-checking timed task started.")
     }
 
     @JvmOverloads
     fun stopBorderTimer(logIt: Boolean = true) {
-        if (borderTask == -1) return
-        plugin.server.scheduler.cancelTask(borderTask)
-        borderTask = -1
+        val t = borderTask ?: return
+        t.cancel()
+        borderTask = null
         if (logIt)
             logConfig("Border-checking timed task stopped.")
     }
@@ -384,8 +383,7 @@ object Config {
         fillTask = task
         if (task.valid()) {
             task.continueProgress(x, z, length, total)
-            val id = plugin.server.scheduler.scheduleSyncRepeatingTask(plugin, task, 20L, tickFrequency.toLong())
-            task.setTaskID(id)
+            task.setTask(Sched.runRepeating(20L, tickFrequency.toLong()) { task.run() })
         }
     }
 

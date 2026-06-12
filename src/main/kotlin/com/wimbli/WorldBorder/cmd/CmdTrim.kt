@@ -3,6 +3,7 @@ package com.wimbli.WorldBorder.cmd
 import com.wimbli.WorldBorder.Config
 import com.wimbli.WorldBorder.CoordXZ
 import com.wimbli.WorldBorder.msg
+import com.wimbli.WorldBorder.Sched
 import com.wimbli.WorldBorder.WorldBorder
 import com.wimbli.WorldBorder.WorldTrimTask
 import org.bukkit.Bukkit
@@ -122,8 +123,7 @@ class CmdTrim : WBCmd() {
             Config.trimTask = WorldTrimTask(Bukkit.getServer(), player, trimWorld, trimPadding, repeats)
             val task = Config.trimTask!!
             if (task.valid()) {
-                val id = Bukkit.getServer().scheduler.scheduleSyncRepeatingTask(WorldBorder.plugin, task, ticks.toLong(), ticks.toLong())
-                task.setTaskID(id)
+                task.setTask(Sched.runRepeating(ticks.toLong(), ticks.toLong()) { task.run() })
                 sender.msg("WorldBorder map trimming task for world \"" + trimWorld + "\" started.")
             } else {
                 sender.msg(C_ERR + "The world map trimming task failed to start.")

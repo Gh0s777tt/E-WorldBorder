@@ -1,8 +1,8 @@
 package com.wimbli.WorldBorder.cmd
 
 import com.wimbli.WorldBorder.Config
+import com.wimbli.WorldBorder.Sched
 import com.wimbli.WorldBorder.UUID.UUIDFetcher
-import com.wimbli.WorldBorder.WorldBorder
 import com.wimbli.WorldBorder.msg
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
@@ -52,21 +52,21 @@ class CmdBypass : WBCmd() {
 
         // FIX: only do the (blocking) Mojang UUID lookup off the main thread, then apply back on the main thread.
         // The original ran this lookup inside a sync task, freezing the server for offline-player lookups.
-        Bukkit.getServer().scheduler.runTaskAsynchronously(WorldBorder.plugin, Runnable {
+        Sched.runAsync {
             val uuid: UUID? = try {
                 UUIDFetcher.getUUID(targetName)
             } catch (ex: Exception) {
                 sendErrorAndHelp(sender, "Failed to look up UUID for the player name you specified. ${ex.localizedMessage}")
-                return@Runnable
+                return@runAsync
             }
             if (uuid == null) {
                 sendErrorAndHelp(sender, "Failed to look up UUID for the player name you specified; null value returned.")
-                return@Runnable
+                return@runAsync
             }
-            Bukkit.getServer().scheduler.runTask(WorldBorder.plugin, Runnable {
+            Sched.runGlobal {
                 applyBypass(sender, player, targetName, uuid, explicit)
-            })
-        })
+            }
+        }
     }
 
     private fun applyBypass(sender: CommandSender, player: Player?, targetName: String, uuid: UUID, explicit: Boolean?) {

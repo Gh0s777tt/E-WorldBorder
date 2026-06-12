@@ -1,10 +1,9 @@
 package com.wimbli.WorldBorder.cmd
 
 import com.wimbli.WorldBorder.Config
+import com.wimbli.WorldBorder.Sched
 import com.wimbli.WorldBorder.UUID.UUIDFetcher
-import com.wimbli.WorldBorder.WorldBorder
 import com.wimbli.WorldBorder.msg
-import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -29,7 +28,7 @@ class CmdBypasslist : WBCmd() {
 
         // FIX: name lookups can hit the network, so run them off the main thread (the original ran them
         // inside a sync task, which could freeze the server).
-        Bukkit.getServer().scheduler.runTaskAsynchronously(WorldBorder.plugin, Runnable {
+        Sched.runAsync {
             try {
                 val names = UUIDFetcher.getNameList(uuids)
                 val nameString = names.values.toString()
@@ -37,6 +36,6 @@ class CmdBypasslist : WBCmd() {
             } catch (ex: Exception) {
                 sendErrorAndHelp(sender, "Failed to look up names for the UUIDs in the border bypass list. ${ex.localizedMessage}")
             }
-        })
+        }
     }
 }

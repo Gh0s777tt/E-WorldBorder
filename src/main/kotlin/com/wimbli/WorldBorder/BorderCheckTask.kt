@@ -16,9 +16,10 @@ class BorderCheckTask : Runnable {
         // if knockback is set to 0, simply return
         if (Config.knockBack == 0.0) return
 
-        // copy the player list so we aren't iterating a live view
+        // copy the player list so we aren't iterating a live view. Each player's check runs on that
+        // player's own region thread (required on Folia for teleporting; runs next tick on Paper).
         for (player in Bukkit.getServer().onlinePlayers.toList()) {
-            checkPlayer(player, null, false, true)
+            Sched.runForEntity(player) { checkPlayer(player, null, false, true) }
         }
     }
 
@@ -71,7 +72,7 @@ class BorderCheckTask : Runnable {
                         Config.logWarn("Player was riding a \"$ride\".")
 
                     ride.velocity = Vector(0, 0, 0)
-                    ride.teleport(rideLoc, TeleportCause.PLUGIN)
+                    ride.teleportAsync(rideLoc, TeleportCause.PLUGIN)
 
                     if (Config.remountTicks > 0) {
                         setPassengerDelayed(ride, player, player.name, Config.remountTicks.toLong())
@@ -86,7 +87,7 @@ class BorderCheckTask : Runnable {
             if (passengers.isNotEmpty()) {
                 player.eject()
                 for (rider in passengers) {
-                    rider.teleport(newLoc, TeleportCause.PLUGIN)
+                    rider.teleportAsync(newLoc, TeleportCause.PLUGIN)
                     if (Config.debug)
                         Config.logWarn("Player had a passenger riding on them: ${rider.type}")
                 }
@@ -96,13 +97,20 @@ class BorderCheckTask : Runnable {
             // particle and sound effects where the player was beyond the border, if enabled
             Config.showWhooshEffect(loc)
 
-            if (!returnLocationOnly)
-                player.teleport(newLoc, TeleportCause.PLUGIN)
+            if (returnLocationOnly) {
+                // WBListener path: it sets event.to itself, so just release the guard and return the location
+                if (!handlingVehicle)
+                    handlingPlayers.remove(player.name.lowercase())
+                return newLoc
+            }
 
-            if (!handlingVehicle)
-                handlingPlayers.remove(player.name.lowercase())
-
-            return if (returnLocationOnly) newLoc else null
+            // timer path: teleport asynchronously (Folia-safe) and release the guard once it completes
+            val handledName = player.name.lowercase()
+            player.teleportAsync(newLoc, TeleportCause.PLUGIN).thenRun {
+                if (!handlingVehicle)
+                    handlingPlayers.remove(handledName)
+            }
+            return null
         }
 
         private fun newLocation(player: Player, loc: Location, border: BorderData, notify: Boolean): Location? {
@@ -134,10 +142,10 @@ class BorderCheckTask : Runnable {
         }
 
         private fun setPassengerDelayed(vehicle: Entity, player: Player, playerName: String, delay: Long) {
-            Bukkit.getServer().scheduler.scheduleSyncDelayedTask(WorldBorder.plugin, {
+            Sched.runForEntityDelayed(vehicle, delay) {
                 handlingPlayers.remove(playerName.lowercase())
                 vehicle.addPassenger(player)
-            }, delay)
+            }
         }
     }
 }

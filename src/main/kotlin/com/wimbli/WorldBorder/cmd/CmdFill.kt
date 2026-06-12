@@ -2,6 +2,7 @@ package com.wimbli.WorldBorder.cmd
 
 import com.wimbli.WorldBorder.Config
 import com.wimbli.WorldBorder.CoordXZ
+import com.wimbli.WorldBorder.Sched
 import com.wimbli.WorldBorder.WorldBorder
 import com.wimbli.WorldBorder.WorldFillTask
 import com.wimbli.WorldBorder.msg
@@ -140,8 +141,7 @@ class CmdFill : WBCmd() {
             Config.fillTask = WorldFillTask(Bukkit.getServer(), curPlayer, fillWorld, fillPadding, repeats, ticks, fillForceLoad)
             val task = Config.fillTask!!
             if (task.valid()) {
-                val id = Bukkit.getServer().scheduler.scheduleSyncRepeatingTask(WorldBorder.plugin, task, ticks.toLong(), ticks.toLong())
-                task.setTaskID(id)
+                task.setTask(Sched.runRepeating(ticks.toLong(), ticks.toLong()) { task.run() })
                 sender.msg("WorldBorder map generation task for world \"$fillWorld\" started.")
             } else {
                 sender.msg(C_ERR + "The world map generation task failed to start.")

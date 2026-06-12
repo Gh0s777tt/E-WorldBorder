@@ -2,6 +2,7 @@ package com.wimbli.WorldBorder
 
 import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent
 import com.wimbli.WorldBorder.Events.WorldBorderFillStartEvent
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import org.bukkit.Bukkit
 import org.bukkit.Server
 import org.bukkit.World
@@ -27,7 +28,7 @@ class WorldFillTask(
     private var readyToGo = false
     private var paused = false
     private var pausedForMemory = false
-    private var taskID = -1
+    private var scheduledTask: ScheduledTask? = null
     private var continueNotice = false
 
     private val fillDistance = fillDistance
@@ -136,9 +137,8 @@ class WorldFillTask(
         }
     }
 
-    fun setTaskID(id: Int) {
-        if (id == -1) stop()
-        this.taskID = id
+    fun setTask(task: ScheduledTask) {
+        this.scheduledTask = task
     }
 
     override fun run() {
@@ -358,8 +358,7 @@ class WorldFillTask(
         if (server == null) return
 
         readyToGo = false
-        if (taskID != -1)
-            server!!.scheduler.cancelTask(taskID)
+        scheduledTask?.cancel()
         server = null
 
         // release any chunk tickets we still hold (clear preventUnload first so the unload listener stays out of the way)
