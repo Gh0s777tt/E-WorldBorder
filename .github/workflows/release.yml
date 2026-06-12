@@ -27,5 +27,7 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/libs/E-WorldBorder-*.jar
+          files: |
+            build/libs/E-WorldBorder-*.jar
+            !build/libs/E-WorldBorder-*-plain.jar
           generate_release_notes: true
