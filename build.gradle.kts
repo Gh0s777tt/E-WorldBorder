@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     // Server API (provided at runtime by the server, hence compileOnly)
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.69-stable")
 
     // Optional soft-dependency, only used by DynMapFeatures. The API surface we use is stable, so the
     // proven 2.5 artifact compiles fine and stays binary-compatible with modern Dynmap 3.x at runtime.
@@ -43,7 +43,7 @@ dependencies {
     // is shaded into the final jar (see shadowJar relocation below).
 
     // Unit tests (the Bukkit/Adventure API is provided on the test classpath here so BorderData loads)
-    testImplementation("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    testImplementation("io.papermc.paper:paper-api:26.1.2.build.69-stable")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
